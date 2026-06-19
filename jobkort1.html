@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="no">
+<html lang="da">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jobbkort 1</title>
+  <title>Jobkort 1</title>
 
   <style>
     body {
@@ -43,13 +43,20 @@
       margin-top: 10px;
     }
 
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
     .btn {
       background: #1f4e8c;
       color: white;
       border: none;
-      width: 300px;
-      padding: 18px 20px;
-      font-size: 20px;
+      width: 140px;
+      padding: 18px 10px;
+      font-size: 16px;
       font-weight: bold;
       border-radius: 10px;
       cursor: pointer;
@@ -76,27 +83,31 @@
 <body>
 
   <div class="header">
-    Jobbkort 1
+    Jobkort 1
   </div>
 
   <div class="content">
 
-    <div class="title">Jobbkort 1</div>
+    <div class="title">Jobkort 1</div>
 
-    <!-- KNAPPER ØVERST -->
-    <a class="btn"
-       href="https://1drv.ms/b/c/6f75bf6f97ee4b37/IQA3S-6Xb791IIBv1RUAAAAAAdWHAIDJn9QqT3DO-eBiYVA?e=zqtJiw"
-       target="_blank">
-      Åpne jobbkort
-    </a>
+    <!-- KNAPPER (SHARE LINK) -->
+    <div class="btn-row">
 
-    <button class="btn" onclick="alert('Utskrift kommer senere')">
-      Skriv ut jobbkort
-    </button>
+      <a class="btn"
+         href="https://1drv.ms/b/c/6f75bf6f97ee4b37/IQA3S-6Xb791IIBv1RUAAAAAAdWHAIDJn9QqT3DO-eBiYVA?e=zqtJiw"
+         target="_blank">
+        Åbn
+      </a>
 
-    <!-- PDF VISNING -->
+      <button class="btn" onclick="alert('Print kommer senere')">
+        Print
+      </button>
+
+    </div>
+
+    <!-- IFRAME (EMBED LINK - hvis den virker hos dig) -->
     <iframe
-      src="https://1drv.ms/b/c/6f75bf6f97ee4b37/IQA3S-6Xb791IIBv1RUAAAAAAdWHAIDJn9QqT3DO-eBiYVA?e=zqtJiw">
+      src="https://1drv.ms/b/c/6f75bf6Xb791IIBv1RUAAAAAAZSuTaH5USjvXfqaYPyqb0Y">
     </iframe>
 
   </div>
