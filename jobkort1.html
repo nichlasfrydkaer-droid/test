@@ -33,32 +33,34 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 20px;
+      gap: 25px;
     }
 
     .btn {
       background: #1f4e8c;
       color: white;
       border: none;
-      padding: 15px 25px;
-      font-size: 16px;
-      border-radius: 8px;
+      width: 300px;
+      padding: 18px 20px;
+      font-size: 20px;
+      font-weight: bold;
+      border-radius: 10px;
       cursor: pointer;
       text-decoration: none;
-      min-width: 200px;
       text-align: center;
+      box-sizing: border-box;
+      transition: background 0.2s;
     }
 
     .btn:hover {
       background: #163a66;
     }
 
-    .back {
-      margin-bottom: 20px;
-      text-align: center;
-      color: #1f4e8c;
-      text-decoration: none;
+    .title {
+      font-size: 28px;
       font-weight: bold;
+      color: black;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -71,15 +73,17 @@
 
   <div class="content">
 
-    <!-- ÅBN -->
-    <a class="btn" href="https://1drv.ms/b/c/6f75bf6f97ee4b37/IQA3S-6Xb791IIBv1RUAAAAAAdWHAIDJn9QqT3DO-eBiYVA?e=4fY4zz" target="_blank">
+    <div class="title">Jobkort 1</div>
+
+    <a class="btn" href="https://YOUR-ONEDRIVE-LINK-HERE" target="_blank">
       Åbn jobkort
     </a>
 
-    <!-- PRINT (klar til backend senere) -->
-    <button class="btn" onclick="alert('Print-funktion kommer snart')">
+    <button class="btn" onclick="alert('Print-funktion kommer senere')">
       Print jobkort
     </button>
+
+  </div>
 
 </body>
 </html>
