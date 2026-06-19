@@ -32,15 +32,24 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: 25px;
+      justify-content: flex-start;
+      gap: 20px;
+      padding: 15px;
     }
 
     .title {
       font-size: 28px;
       font-weight: bold;
       color: black;
-      margin-bottom: 10px;
+      margin-top: 10px;
+    }
+
+    iframe {
+      width: 95%;
+      height: 500px;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
     }
 
     .btn {
@@ -75,15 +84,20 @@
 
     <div class="title">Jobkort 1</div>
 
-    <!-- ÅBN (OPTIMERET VIEWER) -->
+    <!-- PDF EMBED -->
+    <iframe
+      src="https://1drv.ms/b/c/6f75bf6f97ee4b37/IQQ3S-6Xb791IIBv1RUAAAAAAZSuTaH5USjvXfqaYPyqb0Y">
+    </iframe>
+
+    <!-- ÅBN I FULD SKÆRM -->
     <a class="btn"
-       href="https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2F1drv.ms%2Fb%2Fc%2F6f75bf6f97ee4b37%2FIQA3S-6Xb791IIBv1RUAAAAAAdWHAIDJn9QqT3DO-eBiYVA%3Fe%3DzqtJiw"
+       href="https://1drv.ms/b/c/6f75bf6f97ee4b37/IQQ3S-6Xb791IIBv1RUAAAAAAZSuTaH5USjvXfqaYPyqb0Y"
        target="_blank">
       Åbn jobkort
     </a>
 
-    <!-- PRINT (stadig placeholder) -->
-    <button class="btn" onclick="alert('Print kommer senere')">
+    <!-- PRINT (placeholder endnu) -->
+    <button class="btn" onclick="alert('Print funktion kommer senere')">
       Print jobkort
     </button>
 
