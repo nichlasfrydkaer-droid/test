@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="da">
+<html lang="no">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -53,10 +53,10 @@
       background: #1f4e8c;
       color: white;
       border: none;
-      width: 150px;
+      width: 160px;
       height: 52px;
 
-      font-size: 15px;
+      font-size: 14px;
       font-weight: bold;
 
       border-radius: 10px;
@@ -105,21 +105,44 @@
       <a class="btn"
          href="https://1drv.ms/b/c/6f75bf6f97ee4b37/IQA3S-6Xb791IIBv1RUAAAAAAZSuTaH5USjvXfqaYPyqb0Y"
          target="_blank">
-        Utfyll jobbkort
+        Åpne jobbkort
       </a>
 
-      <button class="btn" onclick="alert('Utskrift kommer senere')">
+      <button class="btn" onclick="sendPrint()">
         Skriv ut jobbkort
       </button>
 
     </div>
 
-    <!-- DIN IFRAME (uændret) -->
+    <!-- IFRAME (din originale) -->
     <iframe
       src="https://1drv.ms/b/c/6f75bf6f97ee4b37/IQQ3S-6Xb791IIBv1RUAAAAAAZSuTaH5USjvXfqaYPyqb0Y">
     </iframe>
 
   </div>
+
+  <script>
+    function sendPrint() {
+      fetch("https://wispy-breeze-8b85.nichlasfrydkaer.workers.dev/print", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          job: "jobkort01"
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert("Utskrift sendt ✔");
+        console.log(data);
+      })
+      .catch(err => {
+        alert("Feil ved utskrift");
+        console.error(err);
+      });
+    }
+  </script>
 
 </body>
 </html>
