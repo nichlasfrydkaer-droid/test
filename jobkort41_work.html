@@ -49,7 +49,6 @@ textarea, input[type="text"] {
     margin-top: 5px;
 }
 
-/* BUTTONS */
 button {
     width: 100%;
     padding: 16px;
@@ -61,19 +60,27 @@ button {
     margin-top: 10px;
 }
 
+/* START BUTTON (pulsing) */
 .start {
     background: #28a745;
     color: white;
     animation: pulse 1.5s infinite;
 }
 
+/* STOP BUTTON */
 .stop {
     background: red;
     color: white;
     display: none;
 }
 
-/* 🔥 PULSE ANIMATION FIXED */
+/* AFTER SEND STATE */
+.sent {
+    background: #28a745 !important;
+    color: white !important;
+}
+
+/* PULSE */
 @keyframes pulse {
     0% {
         transform: scale(1);
@@ -87,43 +94,6 @@ button {
         transform: scale(1);
         box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
     }
-}
-
-/* POPUP */
-#popup {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
-
-#popupBox {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    text-align: center;
-    max-width: 320px;
-    width: 80%;
-}
-
-#popupBox h2 {
-    margin: 0 0 10px 0;
-}
-
-#popupBox button {
-    margin-top: 15px;
-    padding: 10px 20px;
-    border: none;
-    background: #28a745;
-    color: white;
-    border-radius: 8px;
-    cursor: pointer;
 }
 </style>
 </head>
@@ -147,33 +117,36 @@ button {
 <div class="section">
     <strong>Kontrolliste</strong>
 
-    <label><input type="checkbox"> Test røykmeldere med egnet testgass og kontroller at brannalarmen aktiveres. Test minst 1 forskjellig detektor hver gang. Loggfør hvilken detektor som ble testet i egen kontrolliste.</label>
+    <label><input type="checkbox" class="task" disabled>
+        Test røykmeldere med egnet testgass og kontroller at brannalarmen aktiveres. Test minst 1 forskjellig detektor hver gang. Loggfør hvilken detektor som ble testet i egen kontrolliste.
+    </label>
 
-    <label><input type="checkbox"> Sørg for at kontrollen blir dokumentert av vedlikeholdskoordinatoren i MNT-skjema. Hvis noe ikke fungerer så er det viktig at dette blir registrert og at man gjør tiltak for å rette feilen så snart som mulig.</label>
+    <label><input type="checkbox" class="task" disabled>
+        Sørg for at kontrollen blir dokumentert av vedlikeholdskoordinatoren i MNT-skjema. Hvis noe ikke fungerer så er det viktig at dette blir registrert og at man gjør tiltak for å rette feilen så snart som mulig.
+    </label>
 
-    <label><input type="checkbox"> Sjekk om brannalarmen er satt i drift igjen ved å taste alarmkoden.</label>
+    <label><input type="checkbox" class="task" disabled>
+        Sjekk om brannalarmen er satt i drift igjen ved å taste alarmkoden.
+    </label>
 
-    <label><input type="checkbox"> Aktiver innbruddsalarmen, test funksjonen ved å utløse bevegelsessensor.</label>
+    <label><input type="checkbox" class="task" disabled>
+        Aktiver innbruddsalarmen, test funksjonen ved å utløse bevegelsessensor.
+    </label>
 
-    <label><input type="checkbox"> Sjekk om innbruddsalarmen er satt i drift igjen ved å taste alarmkoden.</label>
+    <label><input type="checkbox" class="task" disabled>
+        Sjekk om innbruddsalarmen er satt i drift igjen ved å taste alarmkoden.
+    </label>
 
-    <label><input type="checkbox"> Sjekk datoen for siste batteriskift. Batteriet må maks være 3 år gammelt. (Noter dato på batteriet når det er nytt)</label>
+    <label><input type="checkbox" class="task" disabled>
+        Sjekk datoen for siste batteriskift. Batteriet må maks være 3 år gammelt. (Noter dato på batteriet når det er nytt)
+    </label>
 </div>
 
 <div class="section">
     <strong>Notater</strong>
-    <textarea id="notes"></textarea>
+    <textarea id="notes" disabled></textarea>
 </div>
 
-</div>
-
-<!-- POPUP -->
-<div id="popup">
-    <div id="popupBox">
-        <h2>Jobbkort innsendt!</h2>
-        <p>Rapporten er sendt korrekt.</p>
-        <button onclick="closePopup()">OK</button>
-    </div>
 </div>
 
 <script>
@@ -181,8 +154,15 @@ button {
 let startTime;
 let timerInterval;
 
+function setLocked(state) {
+    document.querySelectorAll(".task").forEach(c => c.disabled = !state);
+    document.getElementById("notes").disabled = !state;
+}
+
 function startWork() {
     startTime = new Date();
+
+    setLocked(true);
 
     document.getElementById("startBtn").style.display = "none";
     document.getElementById("stopBtn").style.display = "block";
@@ -203,14 +183,6 @@ function updateTimer() {
         String(sec).padStart(2,'0');
 }
 
-function showPopup() {
-    document.getElementById("popup").style.display = "flex";
-}
-
-function closePopup() {
-    document.getElementById("popup").style.display = "none";
-}
-
 async function endWork() {
 
     clearInterval(timerInterval);
@@ -220,7 +192,7 @@ async function endWork() {
 
     let time = document.getElementById("timeInput").value;
     let notes = document.getElementById("notes").value;
-    let checks = document.querySelectorAll("input[type='checkbox']");
+    let checks = document.querySelectorAll(".task");
 
     let today = new Date();
     let dateStr = today.toLocaleDateString("no-NO");
@@ -229,21 +201,17 @@ async function endWork() {
 
     doc.setFontSize(18);
     doc.text("Jobbkort 41 - Brann og innbruddsalarm", 10, y);
-
     y += 10;
 
     doc.setFontSize(11);
     doc.text("Dato: " + dateStr, 10, y);
-
     y += 10;
 
     doc.text("Tid: " + time, 10, y);
-
     y += 10;
 
     doc.setFontSize(12);
     doc.text("Kontrolliste:", 10, y);
-
     y += 10;
 
     doc.setFontSize(10);
@@ -262,12 +230,10 @@ async function endWork() {
 
     doc.setFontSize(12);
     doc.text("Notater:", 10, y);
-
     y += 8;
 
     doc.setFontSize(10);
-    let noteLines = doc.splitTextToSize(notes || "-", 180);
-    doc.text(noteLines, 10, y);
+    doc.text(doc.splitTextToSize(notes || "-", 180), 10, y);
 
     const pdfBlob = doc.output("blob");
 
@@ -279,7 +245,13 @@ async function endWork() {
         body: formData
     });
 
-    showPopup();
+    // 🔥 CHANGE BUTTON STATE INSTEAD OF POPUP
+    const btn = document.getElementById("stopBtn");
+    btn.innerText = "Innsendt!";
+    btn.classList.add("sent");
+    btn.disabled = true;
+
+    setLocked(false);
 }
 
 </script>
