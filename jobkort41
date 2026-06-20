@@ -20,64 +20,60 @@ body {
 }
 
 h1 {
-    font-size: 22px;
-    margin-bottom: 5px;
-}
-
-h2 {
-    font-size: 18px;
-    margin-top: 20px;
+    text-align: center;
 }
 
 .section {
-    margin-bottom: 20px;
-    padding-bottom: 10px;
+    margin-top: 20px;
+    padding-bottom: 15px;
     border-bottom: 1px solid #ddd;
 }
 
 label {
-    display: flex;
-    align-items: center;
-    margin: 8px 0;
+    display: block;
+    margin: 10px 0;
     font-size: 15px;
 }
 
 input[type="checkbox"] {
     transform: scale(1.2);
-    margin-right: 10px;
+    margin-right: 8px;
 }
 
-input[type="text"], textarea {
+textarea, input[type="text"] {
     width: 100%;
     padding: 10px;
-    margin-top: 5px;
     font-size: 14px;
-}
-
-textarea {
-    height: 120px;
-    resize: vertical;
+    margin-top: 5px;
 }
 
 button {
     width: 100%;
-    padding: 15px;
-    font-size: 16px;
+    padding: 16px;
+    font-size: 18px;
     font-weight: bold;
-    background: #1f6feb;
-    color: white;
     border: none;
     cursor: pointer;
-    margin-top: 20px;
+    border-radius: 8px;
+    margin-top: 10px;
 }
 
-button:hover {
-    background: #0f4fc2;
+.start {
+    background: #1f6feb;
+    color: white;
 }
 
-.small {
-    font-size: 13px;
-    color: #555;
+.stop {
+    background: red;
+    color: white;
+    display: none;
+}
+
+#timer {
+    font-size: 22px;
+    font-weight: bold;
+    text-align: center;
+    margin: 10px 0;
 }
 </style>
 </head>
@@ -87,63 +83,95 @@ button:hover {
 <div class="container">
 
 <h1>JOBBKORT 41</h1>
-<h2>Teknisk vedlikehold – Brann og innbruddsalarm</h2>
 
 <div class="section">
-    <strong>Sted:</strong> Inne i bygget<br/>
-    <strong>Periode:</strong> Hver 3. måned
+    <div id="timer">00:00:00</div>
+</div>
+
+<div class="section">
+    <button class="start" onclick="startWork()">Start arbeid</button>
+    <button class="stop" id="stopBtn" onclick="endWork()">Afslut arbejdet og indsend</button>
 </div>
 
 <div class="section">
     <strong>Tid brukt på jobb</strong>
-    <input type="text" placeholder="f.eks. 2 timer 30 min" />
+    <input type="text" id="timeInput" disabled>
 </div>
 
 <div class="section">
-    <strong>MERK</strong>
-    <p class="small">
-        Sørg for å ha alarmkoden klar før arbeid starter. Kontrollen skal dokumenteres.
-    </p>
+    <strong>Kontrolliste</strong>
+
+    <label><input type="checkbox" disabled> Test røykmeldere</label>
+    <label><input type="checkbox" disabled> Minst 1 detektor testet</label>
+    <label><input type="checkbox" disabled> Dokumentert i MNT-skjema</label>
+    <label><input type="checkbox" disabled> Brannalarm OK</label>
+    <label><input type="checkbox" disabled> Innbruddsalarm testet</label>
+    <label><input type="checkbox" disabled> Batteri kontrollert</label>
 </div>
 
 <div class="section">
-    <h2>Kontrolliste</h2>
-
-    <label><input type="checkbox"> Test røykmeldere med testgass</label>
-    <label><input type="checkbox"> Minst 1 detektor testet</label>
-    <label><input type="checkbox"> Logg hvilken detektor som ble testet</label>
-    <label><input type="checkbox"> Dokumentert i MNT-skjema</label>
-    <label><input type="checkbox"> Brannalarm satt i drift igjen</label>
-    <label><input type="checkbox"> Innbruddsalarm testet</label>
-    <label><input type="checkbox"> Innbruddsalarm satt i drift igjen</label>
-    <label><input type="checkbox"> Batteri sjekket (maks 3 år gammelt)</label>
+    <strong>Notater</strong>
+    <textarea id="notes" disabled></textarea>
 </div>
-
-<div class="section">
-    <h2>Notater</h2>
-    <textarea placeholder="Skriv hva du oppdaget, feil eller ting du ikke kan rette selv..."></textarea>
-</div>
-
-<button onclick="sendReport()">Send rapport</button>
 
 </div>
 
 <script>
-function sendReport() {
-    const checks = document.querySelectorAll("input[type='checkbox']");
-    const notes = document.querySelector("textarea").value;
-    const time = document.querySelector("input[type='text']").value;
+
+let startTime;
+let timerInterval;
+
+function startWork() {
+
+    startTime = new Date();
+
+    // aktiver felter
+    document.querySelectorAll("input[type='checkbox']").forEach(c => c.disabled = false);
+    document.getElementById("notes").disabled = false;
+    document.getElementById("timeInput").disabled = false;
+
+    // knapper
+    document.querySelector(".start").style.display = "none";
+    document.getElementById("stopBtn").style.display = "block";
+
+    // timer
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+    let diff = new Date() - startTime;
+
+    let sec = Math.floor(diff / 1000) % 60;
+    let min = Math.floor(diff / (1000 * 60)) % 60;
+    let hr = Math.floor(diff / (1000 * 60 * 60));
+
+    let formatted =
+        String(hr).padStart(2, '0') + ":" +
+        String(min).padStart(2, '0') + ":" +
+        String(sec).padStart(2, '0');
+
+    document.getElementById("timer").innerText = formatted;
+    document.getElementById("timeInput").value = formatted;
+}
+
+function endWork() {
+
+    clearInterval(timerInterval);
+
+    let checks = document.querySelectorAll("input[type='checkbox']");
+    let notes = document.getElementById("notes").value;
+    let time = document.getElementById("timeInput").value;
 
     let done = [];
     let missing = [];
 
-    checks.forEach((c, i) => {
-        const label = c.parentElement.textContent.trim();
+    checks.forEach(c => {
+        let label = c.parentElement.textContent.trim();
         if (c.checked) done.push(label);
         else missing.push(label);
     });
 
-    const report = {
+    let report = {
         jobkort: 41,
         tid: time,
         fullfort: done,
@@ -152,9 +180,11 @@ function sendReport() {
         tidspunkt: new Date().toISOString()
     };
 
-    console.log("SEND RAPPORT:", report);
-    alert("Rapport klar til sending (backend næste step)");
+    console.log("REPORT:", report);
+
+    alert("Arbejdet er afsluttet – rapport klar til næste step");
 }
+
 </script>
 
 </body>
