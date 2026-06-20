@@ -1,87 +1,188 @@
 <!DOCTYPE html>
-<html lang="da">
+<html lang="no">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jobkort Liste</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Jobbkort System</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: white;
-      color: white;
-    }
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f4f6f8;
+}
 
-    .header {
-      width: 100%;
-      text-align: center;
-      padding: 20px 10px;
-      font-size: 20px;
-      font-weight: bold;
-      background: #1f4e8c;
-      color: white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+}
 
-    .container {
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      max-width: 600px;
-      margin: auto;
-    }
+h1 {
+    font-size: 22px;
+    margin-bottom: 5px;
+}
 
-    .card {
-      background: #1f4e8c;
-      padding: 15px;
-      border-radius: 10px;
-      text-decoration: none;
-      color: white;
-      font-size: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+.section {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}
 
-    .card:hover {
-      background: #163a66;
-    }
+label {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+    font-size: 15px;
+}
 
-    .back {
-      display: block;
-      text-align: center;
-      margin: 20px auto;
-      color: #1f4e8c;
-      text-decoration: none;
-      font-weight: bold;
-    }
-  </style>
+input[type="checkbox"] {
+    transform: scale(1.2);
+    margin-right: 10px;
+}
+
+input[type="text"], textarea, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+textarea {
+    height: 120px;
+    resize: vertical;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    background: #1f6feb;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+button:hover {
+    background: #0f4fc2;
+}
+</style>
 </head>
 
 <body>
 
-  <div class="header">
-    Jobbkort - Liste
-  </div>
+<div class="container">
 
-  <div class="container">
+<h1 id="title">JOBBKORT</h1>
 
-    <a class="card" href="jobkort1.html">Jobkort 1</a>
-    <a class="card" href="jobkort2.html">Jobkort 2</a>
-    <a class="card" href="jobkort3.html">Jobkort 3</a>
-    <a class="card" href="jobkort4.html">Jobkort 4</a>
-    <a class="card" href="jobkort5.html">Jobkort 5</a>
-    <a class="card" href="jobkort6.html">Jobkort 6</a>
-    <a class="card" href="jobkort7.html">Jobkort 7</a>
-    <a class="card" href="jobkort8.html">Jobkort 8</a>
-    <a class="card" href="jobkort9.html">Jobkort 9</a>
-    <a class="card" href="jobkort10.html">Jobkort 10</a>
+<div class="section">
+    <strong>Vælg jobkort (1–41)</strong>
+    <select id="jobkortSelect"></select>
+</div>
 
-  </div>
+<div class="section">
+    <strong>Tid brukt på jobb</strong>
+    <input type="text" id="timeInput" placeholder="f.eks. 2 timer 30 min" />
+</div>
 
-  <a class="back" href="index.html">← Tilbage til start</a>
+<div class="section">
+    <h2>Kontrolliste</h2>
+
+    <div id="checklist"></div>
+</div>
+
+<div class="section">
+    <h2>Notater</h2>
+    <textarea id="notes" placeholder="Skriv hva du oppdaget..."></textarea>
+</div>
+
+<button onclick="sendReport()">Send rapport</button>
+
+</div>
+
+<script>
+// 🔹 init dropdown + routing
+const select = document.getElementById("jobkortSelect");
+
+for (let i = 1; i <= 41; i++) {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = "Jobbkort " + i;
+    select.appendChild(opt);
+}
+
+// 🔹 get id from URL
+function getJobkortId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("id") || "1";
+}
+
+// 🔹 load jobkort
+function loadJobkort() {
+    const id = getJobkortId();
+
+    document.getElementById("title").innerText = "JOBBKORT " + id;
+    document.getElementById("jobkortSelect").value = id;
+
+    // demo checklist (kan senere gøres dynamisk pr jobkort)
+    const checklist = [
+        "Punkt 1",
+        "Punkt 2",
+        "Punkt 3",
+        "Punkt 4",
+        "Punkt 5"
+    ];
+
+    const container = document.getElementById("checklist");
+    container.innerHTML = "";
+
+    checklist.forEach(text => {
+        const label = document.createElement("label");
+        label.innerHTML = `<input type="checkbox"> ${text}`;
+        container.appendChild(label);
+    });
+}
+
+// 🔹 routing når man vælger andet jobkort
+select.addEventListener("change", () => {
+    window.location.href = "jobkort.html?id=" + select.value;
+});
+
+// 🔹 send report
+function sendReport() {
+    const jobkort = getJobkortId();
+    const checks = document.querySelectorAll("#checklist input");
+    const notes = document.getElementById("notes").value;
+    const time = document.getElementById("timeInput").value;
+
+    let done = [];
+    let missing = [];
+
+    checks.forEach(c => {
+        const label = c.parentElement.textContent.trim();
+        if (c.checked) done.push(label);
+        else missing.push(label);
+    });
+
+    const report = {
+        jobkort,
+        tid: time,
+        fullfort: done,
+        mangler: missing,
+        notater: notes,
+        tidspunkt: new Date().toISOString()
+    };
+
+    console.log("REPORT:", report);
+    alert("Rapport klar til backend (næste step)");
+}
+
+// init
+loadJobkort();
+</script>
 
 </body>
 </html>
