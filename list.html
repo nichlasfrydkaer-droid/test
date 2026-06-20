@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Jobbkort System</title>
+<title>Jobbkort Liste</title>
 
 <style>
 body {
@@ -13,57 +13,32 @@ body {
 }
 
 .container {
-    max-width: 900px;
+    max-width: 600px;
     margin: auto;
-    background: white;
     padding: 20px;
 }
 
 h1 {
-    font-size: 22px;
-    margin-bottom: 5px;
-}
-
-.section {
+    text-align: center;
     margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #ddd;
 }
 
-label {
+.button-grid {
     display: flex;
-    align-items: center;
-    margin: 8px 0;
-    font-size: 15px;
-}
-
-input[type="checkbox"] {
-    transform: scale(1.2);
-    margin-right: 10px;
-}
-
-input[type="text"], textarea, select {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    font-size: 14px;
-}
-
-textarea {
-    height: 120px;
-    resize: vertical;
+    flex-direction: column;
+    gap: 10px;
 }
 
 button {
     width: 100%;
-    padding: 15px;
-    font-size: 16px;
-    font-weight: bold;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
     background: #1f6feb;
     color: white;
-    border: none;
-    cursor: pointer;
-    margin-top: 20px;
 }
 
 button:hover {
@@ -76,112 +51,29 @@ button:hover {
 
 <div class="container">
 
-<h1 id="title">JOBBKORT</h1>
+<h1>JOBBKORT</h1>
 
-<div class="section">
-    <strong>Vælg jobkort (1–41)</strong>
-    <select id="jobkortSelect"></select>
-</div>
-
-<div class="section">
-    <strong>Tid brukt på jobb</strong>
-    <input type="text" id="timeInput" placeholder="f.eks. 2 timer 30 min" />
-</div>
-
-<div class="section">
-    <h2>Kontrolliste</h2>
-
-    <div id="checklist"></div>
-</div>
-
-<div class="section">
-    <h2>Notater</h2>
-    <textarea id="notes" placeholder="Skriv hva du oppdaget..."></textarea>
-</div>
-
-<button onclick="sendReport()">Send rapport</button>
+<div class="button-grid" id="list"></div>
 
 </div>
 
 <script>
-// 🔹 init dropdown + routing
-const select = document.getElementById("jobkortSelect");
+const list = document.getElementById("list");
 
 for (let i = 1; i <= 41; i++) {
-    const opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = "Jobbkort " + i;
-    select.appendChild(opt);
-}
 
-// 🔹 get id from URL
-function getJobkortId() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get("id") || "1";
-}
+    // format 01, 02, 03...
+    const id = String(i).padStart(2, "0");
 
-// 🔹 load jobkort
-function loadJobkort() {
-    const id = getJobkortId();
+    const btn = document.createElement("button");
+    btn.innerText = "Jobbkort " + id;
 
-    document.getElementById("title").innerText = "JOBBKORT " + id;
-    document.getElementById("jobkortSelect").value = id;
-
-    // demo checklist (kan senere gøres dynamisk pr jobkort)
-    const checklist = [
-        "Punkt 1",
-        "Punkt 2",
-        "Punkt 3",
-        "Punkt 4",
-        "Punkt 5"
-    ];
-
-    const container = document.getElementById("checklist");
-    container.innerHTML = "";
-
-    checklist.forEach(text => {
-        const label = document.createElement("label");
-        label.innerHTML = `<input type="checkbox"> ${text}`;
-        container.appendChild(label);
-    });
-}
-
-// 🔹 routing når man vælger andet jobkort
-select.addEventListener("change", () => {
-    window.location.href = "jobkort.html?id=" + select.value;
-});
-
-// 🔹 send report
-function sendReport() {
-    const jobkort = getJobkortId();
-    const checks = document.querySelectorAll("#checklist input");
-    const notes = document.getElementById("notes").value;
-    const time = document.getElementById("timeInput").value;
-
-    let done = [];
-    let missing = [];
-
-    checks.forEach(c => {
-        const label = c.parentElement.textContent.trim();
-        if (c.checked) done.push(label);
-        else missing.push(label);
-    });
-
-    const report = {
-        jobkort,
-        tid: time,
-        fullfort: done,
-        mangler: missing,
-        notater: notes,
-        tidspunkt: new Date().toISOString()
+    btn.onclick = () => {
+        window.location.href = `jobkort${id}.html`;
     };
 
-    console.log("REPORT:", report);
-    alert("Rapport klar til backend (næste step)");
+    list.appendChild(btn);
 }
-
-// init
-loadJobkort();
 </script>
 
 </body>
