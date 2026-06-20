@@ -60,25 +60,39 @@ button {
     margin-top: 10px;
 }
 
-.start {
+/* 🟢 START BUTTON (PULSING) */
+#startBtn {
     background: #28a745;
     color: white;
+    animation: pulse 1.5s infinite;
 }
 
-.stop {
+/* 🔴 FINISH BUTTON */
+#finishBtn {
     background: red;
     color: white;
-    display: none;
 }
 
+button:disabled {
+    background: #ccc !important;
+    cursor: not-allowed;
+    animation: none !important;
+}
+
+/* 🔥 PULSE ANIMATION */
 @keyframes pulse {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0.6); }
-    70% { transform: scale(1.02); box-shadow: 0 0 0 15px rgba(40,167,69,0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0); }
-}
-
-.start {
-    animation: pulse 1.5s infinite;
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.6);
+    }
+    70% {
+        transform: scale(1.02);
+        box-shadow: 0 0 0 15px rgba(40, 167, 69, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
 }
 </style>
 </head>
@@ -95,8 +109,8 @@ button {
 </div>
 
 <div class="section">
-    <button class="start" id="startBtn" onclick="startWork()">Start arbeid</button>
-    <button class="stop" id="stopBtn" onclick="endWork()">Afslut arbejdet og indsend</button>
+    <button id="startBtn" onclick="startWork()">Start arbeidet</button>
+    <button id="finishBtn" onclick="endWork()" disabled>Ferdigmeld og innsend rapport</button>
 </div>
 
 <div class="section">
@@ -149,8 +163,7 @@ function startWork() {
 
     setLocked(true);
 
-    document.getElementById("startBtn").style.display = "none";
-    document.getElementById("stopBtn").style.display = "block";
+    document.getElementById("finishBtn").disabled = false;
 
     timerInterval = setInterval(updateTimer, 1000);
 }
@@ -207,7 +220,6 @@ async function endWork() {
 
         let lines = doc.splitTextToSize(`- ${status} ${text}`, 180);
         doc.text(lines, 10, y);
-
         y += lines.length * 6;
     });
 
