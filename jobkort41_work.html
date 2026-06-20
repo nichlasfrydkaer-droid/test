@@ -59,19 +59,13 @@ button {
 }
 
 #timer {
-    font-size: 22px;
+    font-size: 18px;
     font-weight: bold;
-    text-align: center;
-    margin: 10px 0;
+    text-align: left;
+    margin-top: 10px;
 }
 
-.small {
-    font-size: 14px;
-    line-height: 1.6;
-    white-space: pre-wrap;
-}
-
-/* 🟢 START KNAP - PULSERENDE */
+/* 🟢 START KNAP */
 .start {
     background: #28a745;
     color: white;
@@ -99,6 +93,13 @@ button {
     color: white;
     display: none;
 }
+
+/* SMALL TEXT */
+.small {
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
 </style>
 </head>
 
@@ -108,26 +109,16 @@ button {
 
 <h1>JOBBKORT 41 - Brann og innbruddsalarm</h1>
 
-<!-- 🔴 ORIGINAL TEKST (UNCHANGED) -->
-<div class="section small">
-Teknisk vedlikehold
-</div>
-
-<!-- TIMER -->
+<!-- TIMER INPUT (ENESTE TIMER) -->
 <div class="section">
-    <div id="timer">00:00:00</div>
+    <strong>Tid brukt på jobb</strong>
+    <input type="text" id="timeInput" disabled>
 </div>
 
 <!-- START / STOP -->
 <div class="section">
     <button class="start" id="startBtn" onclick="startWork()">Start arbeid</button>
     <button class="stop" id="stopBtn" onclick="endWork()">Afslut arbejdet og indsend</button>
-</div>
-
-<!-- TID -->
-<div class="section">
-    <strong>Tid brukt på jobb</strong>
-    <input type="text" id="timeInput" disabled>
 </div>
 
 <!-- CHECKLIST -->
@@ -150,7 +141,7 @@ Teknisk vedlikehold
 <!-- NOTES -->
 <div class="section">
     <strong>Notater</strong>
-    <textarea id="notes" disabled></textarea>
+    <textarea id="notes" disabled oninput="autoGrow(this)"></textarea>
 </div>
 
 </div>
@@ -164,11 +155,9 @@ function startWork() {
 
     startTime = new Date();
 
-    // aktiver felter ved start
     document.querySelectorAll("input[type='checkbox']").forEach(c => c.disabled = false);
     document.getElementById("notes").disabled = false;
 
-    // UI skift
     document.getElementById("startBtn").style.animation = "none";
     document.getElementById("startBtn").style.display = "none";
     document.getElementById("stopBtn").style.display = "block";
@@ -188,8 +177,12 @@ function updateTimer() {
         String(min).padStart(2,'0') + ":" +
         String(sec).padStart(2,'0');
 
-    document.getElementById("timer").innerText = formatted;
     document.getElementById("timeInput").value = formatted;
+}
+
+function autoGrow(el) {
+    el.style.height = "5px";
+    el.style.height = (el.scrollHeight) + "px";
 }
 
 function endWork() {
