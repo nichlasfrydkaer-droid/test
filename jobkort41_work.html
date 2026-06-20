@@ -3,103 +3,26 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Jobbkort 41 - Brann og innbruddsalarm</title>
+<title>Jobbkort 41</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    background: #f4f6f8;
-}
+body { font-family: Arial; margin:0; background:#f4f6f8; }
+.container { max-width:900px; margin:auto; background:white; padding:20px; }
+h1 { text-align:center; }
 
-.container {
-    max-width: 900px;
-    margin: auto;
-    background: white;
-    padding: 20px;
-}
-
-h1 {
-    text-align: center;
-}
-
-.section {
-    margin-top: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #ddd;
-}
-
-label {
-    display: block;
-    margin: 10px 0;
-    font-size: 15px;
-}
-
-input[type="checkbox"] {
-    transform: scale(1.2);
-    margin-right: 8px;
-}
-
-textarea, input[type="text"] {
-    width: 100%;
-    padding: 10px;
-    font-size: 14px;
-    margin-top: 5px;
-}
+.section { margin-top:20px; padding-bottom:15px; border-bottom:1px solid #ddd; }
 
 button {
-    width: 100%;
-    padding: 16px;
-    font-size: 18px;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-    border-radius: 8px;
-    margin-top: 10px;
+  width:100%; padding:16px; font-size:18px;
+  border:none; border-radius:8px; cursor:pointer;
 }
 
-#timer {
-    font-size: 18px;
-    font-weight: bold;
-    text-align: left;
-    margin-top: 10px;
-}
+.start { background:#28a745; color:white; }
+.stop { background:red; color:white; display:none; }
 
-/* 🟢 START KNAP */
-.start {
-    background: #28a745;
-    color: white;
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
-    }
-    70% {
-        transform: scale(1.02);
-        box-shadow: 0 0 0 12px rgba(40, 167, 69, 0);
-    }
-    100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
-    }
-}
-
-/* 🔴 STOP KNAP */
-.stop {
-    background: red;
-    color: white;
-    display: none;
-}
-
-/* SMALL TEXT */
-.small {
-    font-size: 14px;
-    line-height: 1.6;
-    white-space: pre-wrap;
-}
+textarea { width:100%; padding:10px; }
 </style>
 </head>
 
@@ -107,41 +30,27 @@ button {
 
 <div class="container">
 
-<h1>JOBBKORT 41 - Brann og innbruddsalarm</h1>
+<h1>JOBBKORT 41</h1>
 
-<!-- TIMER INPUT (ENESTE TIMER) -->
 <div class="section">
-    <strong>Tid brukt på jobb</strong>
-    <input type="text" id="timeInput" disabled>
+<strong>Tid:</strong>
+<input type="text" id="timeInput" disabled>
 </div>
 
-<!-- START / STOP -->
 <div class="section">
-    <button class="start" id="startBtn" onclick="startWork()">Start arbeid</button>
-    <button class="stop" id="stopBtn" onclick="endWork()">Afslut arbejdet og indsend</button>
+<button class="start" id="startBtn" onclick="startWork()">Start arbejde</button>
+<button class="stop" id="stopBtn" onclick="endWork()">Afslut og send</button>
 </div>
 
-<!-- CHECKLIST -->
 <div class="section">
-    <strong>Kontrolliste</strong>
-
-    <label><input type="checkbox" disabled> Test røykmeldere med egnet testgass og kontroller at brannalarmen aktiveres. Test minst 1 forskjellig detektor hver gang. Loggfør hvilken detektor som ble testet i egen kontrolliste.</label>
-
-    <label><input type="checkbox" disabled> Sørg for at kontrollen blir dokumentert av vedlikeholdskoordinatoren i MNT-skjema. Hvis noe ikke fungerer så er det viktig at dette blir registrert og at man gjør tiltak for å rette feilen så snart som mulig.</label>
-
-    <label><input type="checkbox" disabled> Sjekk om brannalarmen er satt i drift igjen ved å taste alarmkoden.</label>
-
-    <label><input type="checkbox" disabled> Aktiver innbruddsalarmen, test funksjonen ved å utløse bevegelsessensor.</label>
-
-    <label><input type="checkbox" disabled> Sjekk om innbruddsalarmen er satt i drift igjen ved å taste alarmkoden.</label>
-
-    <label><input type="checkbox" disabled> Sjekk datoen for siste batteriskift. Batteriet må maks være 3 år gammelt. (Noter dato på batteriet når det er nytt)</label>
+<label><input type="checkbox"> Test røykmeldere</label>
+<label><input type="checkbox"> Kontroller brannalarm</label>
+<label><input type="checkbox"> Test innbruddsalarm</label>
 </div>
 
-<!-- NOTES -->
 <div class="section">
-    <strong>Notater</strong>
-    <textarea id="notes" disabled oninput="autoGrow(this)"></textarea>
+<strong>Notater</strong>
+<textarea id="notes"></textarea>
 </div>
 
 </div>
@@ -149,70 +58,72 @@ button {
 <script>
 
 let startTime;
-let timerInterval;
+let timer;
 
 function startWork() {
-
     startTime = new Date();
 
-    document.querySelectorAll("input[type='checkbox']").forEach(c => c.disabled = false);
-    document.getElementById("notes").disabled = false;
-
-    document.getElementById("startBtn").style.animation = "none";
     document.getElementById("startBtn").style.display = "none";
     document.getElementById("stopBtn").style.display = "block";
 
-    timerInterval = setInterval(updateTimer, 1000);
+    timer = setInterval(() => {
+        let diff = new Date() - startTime;
+
+        let h = Math.floor(diff / 3600000);
+        let m = Math.floor(diff % 3600000 / 60000);
+        let s = Math.floor(diff % 60000 / 1000);
+
+        document.getElementById("timeInput").value =
+            String(h).padStart(2,'0') + ":" +
+            String(m).padStart(2,'0') + ":" +
+            String(s).padStart(2,'0');
+    }, 1000);
 }
 
-function updateTimer() {
-    let diff = new Date() - startTime;
+async function endWork() {
 
-    let sec = Math.floor(diff / 1000) % 60;
-    let min = Math.floor(diff / (1000 * 60)) % 60;
-    let hr = Math.floor(diff / (1000 * 60 * 60));
+    clearInterval(timer);
 
-    let formatted =
-        String(hr).padStart(2,'0') + ":" +
-        String(min).padStart(2,'0') + ":" +
-        String(sec).padStart(2,'0');
+    console.log("ENDWORK STARTED");
 
-    document.getElementById("timeInput").value = formatted;
-}
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-function autoGrow(el) {
-    el.style.height = "5px";
-    el.style.height = (el.scrollHeight) + "px";
-}
-
-function endWork() {
-
-    clearInterval(timerInterval);
-
-    let checks = document.querySelectorAll("input[type='checkbox']");
-    let notes = document.getElementById("notes").value;
     let time = document.getElementById("timeInput").value;
+    let notes = document.getElementById("notes").value;
+    let checks = document.querySelectorAll("input[type='checkbox']");
 
-    let done = [];
-    let missing = [];
+    let y = 10;
+
+    doc.text("Jobbkort 41", 10, y); y += 10;
+    doc.text("Tid: " + time, 10, y); y += 10;
+
+    doc.text("Checkliste:", 10, y); y += 10;
 
     checks.forEach(c => {
-        let label = c.parentElement.textContent.trim();
-        if (c.checked) done.push(label);
-        else missing.push(label);
+        doc.text("- " + (c.checked ? "OK" : "IKKE OK") + " " + c.parentElement.innerText, 10, y);
+        y += 8;
     });
 
-    let report = {
-        jobkort: 41,
-        tid: time,
-        fullfort: done,
-        mangler: missing,
-        notater: notes,
-        tidspunkt: new Date().toISOString()
-    };
+    y += 5;
+    doc.text("Notater:", 10, y); y += 10;
+    doc.text(notes || "-", 10, y);
 
-    console.log("REPORT:", report);
-    alert("Jobbkort afsluttet – klar til backend");
+    const pdfBlob = doc.output("blob");
+
+    const formData = new FormData();
+    formData.append("file", pdfBlob, "jobbkort41.pdf");
+
+    console.log("SENDING TO WORKER");
+
+    const res = await fetch("https://DIN-WORKER.workers.dev", {
+        method: "POST",
+        body: formData
+    });
+
+    console.log("WORKER RESPONSE:", await res.text());
+
+    alert("Sendt!");
 }
 
 </script>
