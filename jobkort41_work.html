@@ -75,6 +75,12 @@ button {
     text-align: center;
     margin: 10px 0;
 }
+
+.small {
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
 </style>
 </head>
 
@@ -84,15 +90,41 @@ button {
 
 <h1>JOBBKORT 41</h1>
 
+<!-- 🔴 ORIGINAL TEKST (IKKE ÆNDRET) -->
+<div class="section small">
+JOBBKORT 41
+Teknisk vedlikehold
+Brann og innbruddsalarm Tid brukt på jobb:
+Sted: Inne i bygget.
+Hver 3. måned
+MERK: Siden brannalarmen er koblet sammen med innbruddsalarmen, sørg for å ha koden til
+alarmen nedskrevet før videre arbeid.
+Kontrolliste for brannalarm brukes for å loggføre test av røykmeldere.
+ Test røykmeldere med egnet testgass og kontroller at brannalarmen aktiveres. Test minst 1
+forskjellig detektor hver gang. Loggfør hvilken detektor som ble testet i egen kontrolliste.
+ Sørg for at kontrollen blir dokumentert av vedlikeholdskoordinatoren i MNT-skjema. Hvis
+noe ikke fungerer så er det viktig at dette blir registrert og at man gjør tiltak for å rette
+feilen så snart som mulig.
+ Sjekk om brannalarmen er satt i drift igjen ved å taste alarmkoden.
+ Aktiver innbruddsalarmen, test funksjonen ved å utløse bevegelsessensor.
+ Sjekk om innbruddsalarmen er satt i drift igjen ved å taste alarmkoden.
+ Sjekk datoen for siste batteriskift. Batteriet må maks være 3 år gammelt. (Noter dato på
+batteriet når det er nytt)
+Noter nedenfor ting som du oppdaget og
+</div>
+
+<!-- TIMER -->
 <div class="section">
     <div id="timer">00:00:00</div>
 </div>
 
+<!-- START / STOP -->
 <div class="section">
     <button class="start" onclick="startWork()">Start arbeid</button>
     <button class="stop" id="stopBtn" onclick="endWork()">Afslut arbejdet og indsend</button>
 </div>
 
+<!-- FELTER -->
 <div class="section">
     <strong>Tid brukt på jobb</strong>
     <input type="text" id="timeInput" disabled>
@@ -101,12 +133,17 @@ button {
 <div class="section">
     <strong>Kontrolliste</strong>
 
-    <label><input type="checkbox" disabled> Test røykmeldere</label>
-    <label><input type="checkbox" disabled> Minst 1 detektor testet</label>
-    <label><input type="checkbox" disabled> Dokumentert i MNT-skjema</label>
-    <label><input type="checkbox" disabled> Brannalarm OK</label>
-    <label><input type="checkbox" disabled> Innbruddsalarm testet</label>
-    <label><input type="checkbox" disabled> Batteri kontrollert</label>
+    <label><input type="checkbox" disabled> Test røykmeldere med egnet testgass og kontroller at brannalarmen aktiveres. Test minst 1 forskjellig detektor hver gang. Loggfør hvilken detektor som ble testet i egen kontrolliste.</label>
+
+    <label><input type="checkbox" disabled> Sørg for at kontrollen blir dokumentert av vedlikeholdskoordinatoren i MNT-skjema. Hvis noe ikke fungerer så er det viktig at dette blir registrert og at man gjør tiltak for å rette feilen så snart som mulig.</label>
+
+    <label><input type="checkbox" disabled> Sjekk om brannalarmen er satt i drift igjen ved å taste alarmkoden.</label>
+
+    <label><input type="checkbox" disabled> Aktiver innbruddsalarmen, test funksjonen ved å utløse bevegelsessensor.</label>
+
+    <label><input type="checkbox" disabled> Sjekk om innbruddsalarmen er satt i drift igjen ved å taste alarmkoden.</label>
+
+    <label><input type="checkbox" disabled> Sjekk datoen for siste batteriskift. Batteriet må maks være 3 år gammelt. (Noter dato på batteriet når det er nytt)</label>
 </div>
 
 <div class="section">
@@ -125,16 +162,13 @@ function startWork() {
 
     startTime = new Date();
 
-    // aktiver felter
     document.querySelectorAll("input[type='checkbox']").forEach(c => c.disabled = false);
     document.getElementById("notes").disabled = false;
     document.getElementById("timeInput").disabled = false;
 
-    // knapper
     document.querySelector(".start").style.display = "none";
     document.getElementById("stopBtn").style.display = "block";
 
-    // timer
     timerInterval = setInterval(updateTimer, 1000);
 }
 
@@ -146,9 +180,9 @@ function updateTimer() {
     let hr = Math.floor(diff / (1000 * 60 * 60));
 
     let formatted =
-        String(hr).padStart(2, '0') + ":" +
-        String(min).padStart(2, '0') + ":" +
-        String(sec).padStart(2, '0');
+        String(hr).padStart(2,'0') + ":" +
+        String(min).padStart(2,'0') + ":" +
+        String(sec).padStart(2,'0');
 
     document.getElementById("timer").innerText = formatted;
     document.getElementById("timeInput").value = formatted;
@@ -181,8 +215,7 @@ function endWork() {
     };
 
     console.log("REPORT:", report);
-
-    alert("Arbejdet er afsluttet – rapport klar til næste step");
+    alert("Jobbkort afsluttet – klar til backend");
 }
 
 </script>
