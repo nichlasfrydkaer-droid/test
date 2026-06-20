@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Jobbkort 41</title>
+<title>Jobbkort 41 Menu</title>
 
 <style>
 body {
@@ -23,14 +23,12 @@ h1 {
     margin-bottom: 30px;
 }
 
-/* knap layout */
 .button-grid {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-/* aktive knapper */
 button {
     padding: 18px;
     font-size: 18px;
@@ -46,7 +44,6 @@ button:hover {
     background: #0f4fc2;
 }
 
-/* deaktiverede knapper */
 .disabled {
     background: #c7c7c7;
     color: #666;
@@ -63,12 +60,11 @@ button:hover {
 
 <div class="button-grid">
 
-    <!-- AKTIV -->
-    <button onclick="openJobkort()">
+    <!-- ✅ RETTET HER -->
+    <button onclick="openWork()">
         Åpne jobbkort
     </button>
 
-    <!-- DEAKTIVERET -->
     <button class="disabled" disabled>
         Skriv ut
     </button>
@@ -87,9 +83,9 @@ button:hover {
 
 <script>
 
-// Åpner samme jobkort (kan ændres senere hvis du vil redirecte andet sted)
-function openJobkort() {
-    window.location.href = "jobkort41";
+// 🔥 HER ER FIXEN
+function openWork() {
+    window.location.href = "jobkort41_work.html";
 }
 
 </script>
