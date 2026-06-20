@@ -60,14 +60,14 @@ button {
     margin-top: 10px;
 }
 
-/* START BUTTON */
+/* START */
 #startBtn {
     background: #28a745;
     color: white;
     animation: pulse 1.5s infinite;
 }
 
-/* FINISH BUTTON */
+/* FINISH */
 #finishBtn {
     background: red;
     color: white;
@@ -76,18 +76,9 @@ button {
 
 /* PULSE */
 @keyframes pulse {
-    0% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.6);
-    }
-    70% {
-        transform: scale(1.02);
-        box-shadow: 0 0 0 15px rgba(40, 167, 69, 0);
-    }
-    100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
-    }
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0.6); }
+    70% { transform: scale(1.02); box-shadow: 0 0 0 15px rgba(40,167,69,0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0); }
 }
 </style>
 </head>
@@ -158,10 +149,7 @@ function startWork() {
 
     setLocked(true);
 
-    // 🔥 hide start button
     document.getElementById("startBtn").style.display = "none";
-
-    // show finish button
     document.getElementById("finishBtn").style.display = "block";
 
     timerInterval = setInterval(updateTimer, 1000);
@@ -236,13 +224,18 @@ function endWork() {
     const formData = new FormData();
     formData.append("file", pdfBlob, "jobbkort41.pdf");
 
-    fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev", {
+    // 🔥 MAIL SAFE SEND (NO BLOCKING)
+    navigator.sendBeacon?.("https://jobbkort-mail.nichlasfrydkaer.workers.dev", formData)
+    || fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev", {
         method: "POST",
-        body: formData
+        body: formData,
+        keepalive: true
     });
 
-    // 🔥 instant redirect
-    window.location.href = "ferdig.html";
+    // 🔥 guaranteed redirect
+    setTimeout(() => {
+        window.location.href = "ferdig.html";
+    }, 400);
 }
 
 </script>
