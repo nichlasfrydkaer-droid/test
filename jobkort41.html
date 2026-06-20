@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Jobkort 1</title>
+<title>Jobbkort 41</title>
 
 <style>
 body {
@@ -13,76 +13,44 @@ body {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 700px;
     margin: auto;
-    background: white;
     padding: 20px;
 }
 
 h1 {
     text-align: center;
-    font-size: 24px;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
-/* Knapper */
-.button-row {
+/* knap layout */
+.button-grid {
     display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 20px;
+    flex-direction: column;
+    gap: 12px;
 }
 
+/* aktive knapper */
 button {
-    flex: 1;
     padding: 18px;
     font-size: 18px;
     font-weight: 700;
     border: none;
+    border-radius: 10px;
     cursor: pointer;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.open-btn {
     background: #1f6feb;
     color: white;
 }
 
-.open-btn:hover {
+button:hover {
     background: #0f4fc2;
 }
 
-.send-btn {
-    background: #2ea043;
-    color: white;
-}
-
-.send-btn:hover {
-    background: #1f7a32;
-}
-
-/* indhold */
-.section {
-    margin-top: 20px;
-}
-
-textarea {
-    width: 100%;
-    height: 150px;
-    padding: 10px;
-    font-size: 14px;
-}
-
-label {
-    display: block;
-    margin: 8px 0;
-    font-size: 15px;
-}
-
-input[type="checkbox"] {
-    transform: scale(1.2);
-    margin-right: 8px;
+/* deaktiverede knapper */
+.disabled {
+    background: #c7c7c7;
+    color: #666;
+    cursor: not-allowed;
 }
 </style>
 </head>
@@ -91,65 +59,37 @@ input[type="checkbox"] {
 
 <div class="container">
 
-<h1>JOBKORT 1</h1>
+<h1>JOBBKORT 41</h1>
 
-<!-- Knapper -->
-<div class="button-row">
-    <!-- Åbn knap -->
-    <button class="open-btn" onclick="openJobkort()">
-        Åbn jobkort
+<div class="button-grid">
+
+    <!-- AKTIV -->
+    <button onclick="openJobkort()">
+        Åpne jobbkort
     </button>
 
-    <!-- Send knap -->
-    <button class="send-btn" onclick="sendReport()">
-        Send rapport
+    <!-- DEAKTIVERET -->
+    <button class="disabled" disabled>
+        Skriv ut
     </button>
-</div>
 
-<!-- Eksempel checklist -->
-<div class="section">
-    <label><input type="checkbox"> Punkt 1</label>
-    <label><input type="checkbox"> Punkt 2</label>
-    <label><input type="checkbox"> Punkt 3</label>
-</div>
+    <button class="disabled" disabled>
+        Sikker jobb analyse
+    </button>
 
-<div class="section">
-    <textarea placeholder="Notater..."></textarea>
+    <button class="disabled" disabled>
+        Veiledning
+    </button>
+
 </div>
 
 </div>
 
 <script>
 
-// Åbn knap → peger til jobkort1 (samme side)
+// Åpner samme jobkort (kan ændres senere hvis du vil redirecte andet sted)
 function openJobkort() {
-    window.location.href = "jobkort1.html";
-}
-
-// Send rapport (placeholder til senere backend)
-function sendReport() {
-    const checks = document.querySelectorAll("input[type='checkbox']");
-    const notes = document.querySelector("textarea").value;
-
-    let done = [];
-    let missing = [];
-
-    checks.forEach(c => {
-        const label = c.parentElement.textContent.trim();
-        if (c.checked) done.push(label);
-        else missing.push(label);
-    });
-
-    const report = {
-        jobkort: 1,
-        fullfort: done,
-        mangler: missing,
-        notater: notes,
-        tidspunkt: new Date().toISOString()
-    };
-
-    console.log("REPORT:", report);
-    alert("Rapport klar til backend");
+    window.location.href = "jobkort41.html";
 }
 
 </script>
