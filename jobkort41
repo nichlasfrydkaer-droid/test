@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Jobbkort 41</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f4f6f8;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 22px;
+    margin-bottom: 5px;
+}
+
+h2 {
+    font-size: 18px;
+    margin-top: 20px;
+}
+
+.section {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+label {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+    font-size: 15px;
+}
+
+input[type="checkbox"] {
+    transform: scale(1.2);
+    margin-right: 10px;
+}
+
+input[type="text"], textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+textarea {
+    height: 120px;
+    resize: vertical;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    background: #1f6feb;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+button:hover {
+    background: #0f4fc2;
+}
+
+.small {
+    font-size: 13px;
+    color: #555;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>JOBBKORT 41</h1>
+<h2>Teknisk vedlikehold – Brann og innbruddsalarm</h2>
+
+<div class="section">
+    <strong>Sted:</strong> Inne i bygget<br/>
+    <strong>Periode:</strong> Hver 3. måned
+</div>
+
+<div class="section">
+    <strong>Tid brukt på jobb</strong>
+    <input type="text" placeholder="f.eks. 2 timer 30 min" />
+</div>
+
+<div class="section">
+    <strong>MERK</strong>
+    <p class="small">
+        Sørg for å ha alarmkoden klar før arbeid starter. Kontrollen skal dokumenteres.
+    </p>
+</div>
+
+<div class="section">
+    <h2>Kontrolliste</h2>
+
+    <label><input type="checkbox"> Test røykmeldere med testgass</label>
+    <label><input type="checkbox"> Minst 1 detektor testet</label>
+    <label><input type="checkbox"> Logg hvilken detektor som ble testet</label>
+    <label><input type="checkbox"> Dokumentert i MNT-skjema</label>
+    <label><input type="checkbox"> Brannalarm satt i drift igjen</label>
+    <label><input type="checkbox"> Innbruddsalarm testet</label>
+    <label><input type="checkbox"> Innbruddsalarm satt i drift igjen</label>
+    <label><input type="checkbox"> Batteri sjekket (maks 3 år gammelt)</label>
+</div>
+
+<div class="section">
+    <h2>Notater</h2>
+    <textarea placeholder="Skriv hva du oppdaget, feil eller ting du ikke kan rette selv..."></textarea>
+</div>
+
+<button onclick="sendReport()">Send rapport</button>
+
+</div>
+
+<script>
+function sendReport() {
+    const checks = document.querySelectorAll("input[type='checkbox']");
+    const notes = document.querySelector("textarea").value;
+    const time = document.querySelector("input[type='text']").value;
+
+    let done = [];
+    let missing = [];
+
+    checks.forEach((c, i) => {
+        const label = c.parentElement.textContent.trim();
+        if (c.checked) done.push(label);
+        else missing.push(label);
+    });
+
+    const report = {
+        jobkort: 41,
+        tid: time,
+        fullfort: done,
+        mangler: missing,
+        notater: notes,
+        tidspunkt: new Date().toISOString()
+    };
+
+    console.log("SEND RAPPORT:", report);
+    alert("Rapport klar til sending (backend næste step)");
+}
+</script>
+
+</body>
+</html>
