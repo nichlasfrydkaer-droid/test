@@ -90,7 +90,7 @@ button {
 
 <h1>JOBBKORT 41</h1>
 
-<!-- 🔴 ORIGINAL TEKST (IKKE ÆNDRET) -->
+<!-- 🔴 ORIGINAL TEKST (100% UNCHANGED) -->
 <div class="section small">
 JOBBKORT 41
 Teknisk vedlikehold
@@ -110,7 +110,8 @@ feilen så snart som mulig.
  Sjekk om innbruddsalarmen er satt i drift igjen ved å taste alarmkoden.
  Sjekk datoen for siste batteriskift. Batteriet må maks være 3 år gammelt. (Noter dato på
 batteriet når det er nytt)
-Noter nedenfor ting som du oppdaget og
+Noter nedenfor ting som du oppdaget og som du selv ikke kan eller har lov til å gjøre noe med. Gi
+deretter kortet til driftsutvalget.
 </div>
 
 <!-- TIMER -->
@@ -124,12 +125,13 @@ Noter nedenfor ting som du oppdaget og
     <button class="stop" id="stopBtn" onclick="endWork()">Afslut arbejdet og indsend</button>
 </div>
 
-<!-- FELTER -->
+<!-- TID -->
 <div class="section">
     <strong>Tid brukt på jobb</strong>
     <input type="text" id="timeInput" disabled>
 </div>
 
+<!-- CHECKLIST -->
 <div class="section">
     <strong>Kontrolliste</strong>
 
@@ -146,6 +148,7 @@ Noter nedenfor ting som du oppdaget og
     <label><input type="checkbox" disabled> Sjekk datoen for siste batteriskift. Batteriet må maks være 3 år gammelt. (Noter dato på batteriet når det er nytt)</label>
 </div>
 
+<!-- NOTES -->
 <div class="section">
     <strong>Notater</strong>
     <textarea id="notes" disabled></textarea>
@@ -162,9 +165,10 @@ function startWork() {
 
     startTime = new Date();
 
+    // aktiver ALT først ved start
     document.querySelectorAll("input[type='checkbox']").forEach(c => c.disabled = false);
-    document.getElementById("notes").disabled = false;
-    document.getElementById("timeInput").disabled = false;
+    document.querySelectorAll("textarea").forEach(t => t.disabled = false);
+    document.querySelectorAll("input[type='text']").forEach(t => t.disabled = false);
 
     document.querySelector(".start").style.display = "none";
     document.getElementById("stopBtn").style.display = "block";
