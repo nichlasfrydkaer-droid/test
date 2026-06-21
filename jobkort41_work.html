@@ -72,7 +72,20 @@ button {
 #finishBtn {
     background: red;
     color: white;
-    display: none;
+}
+
+.loading {
+    background: #999 !important;
+    cursor: not-allowed;
+}
+
+.success {
+    background: #28a745 !important;
+}
+
+#status {
+    margin-top: 10px;
+    font-weight: bold;
 }
 
 @keyframes pulse {
@@ -96,39 +109,43 @@ button {
 
 <div class="section">
     <button id="startBtn" onclick="startWork()">Start arbeidet</button>
+</div>
+
+<div class="section">
     <button id="finishBtn" onclick="endWork()">Ferdigmeld og innsend</button>
+    <div id="status"></div>
 </div>
 
 <div class="section">
     <strong>Kontrolliste</strong>
 
     <label><input type="checkbox" class="task" disabled>
-        Test røykmeldere med egnet testgass og kontroller at brannalarmen aktiveres. Test minst 1 forskjellig detektor hver gang. Loggfør hvilken detektor som ble testet.
+        Test røykmeldere med testgass og kontroller alarmen.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Sørg for at kontrollen dokumenteres korrekt i MNT-skjema.
+        Dokumenter kontroll i MNT-skjema.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Sjekk om brannalarmen er satt i drift igjen ved å taste alarmkoden.
+        Sjekk brannalarm reset.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Test innbruddsalarmen ved å utløse bevegelsessensor.
+        Test innbruddsalarm med bevegelse.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Sjekk om innbruddsalarmen er aktiv igjen.
+        Sjekk systemstatus.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Sjekk batteriskift (maks 3 år gammelt).
+        Sjekk batterier (maks 3 år).
     </label>
 </div>
 
 <div class="section">
-    <strong>Bilder (flere kan velges)</strong>
+    <strong>Bilder</strong>
     <input type="file" id="photos" accept="image/*" multiple disabled>
 </div>
 
@@ -141,8 +158,8 @@ button {
 
 <script>
 
-let startTime = null;
-let timer = null;
+let startTime;
+let timer;
 
 function setLocked(state) {
     document.querySelectorAll(".task").forEach(c => c.disabled = !state);
@@ -151,16 +168,12 @@ function setLocked(state) {
 }
 
 function startWork() {
-
     startTime = Date.now();
-
     setLocked(true);
 
     document.getElementById("startBtn").style.display = "none";
-    document.getElementById("finishBtn").style.display = "block";
 
     timer = setInterval(() => {
-
         let diff = Date.now() - startTime;
 
         let h = Math.floor(diff / 3600000);
@@ -171,84 +184,97 @@ function startWork() {
             String(h).padStart(2,'0') + ":" +
             String(m).padStart(2,'0') + ":" +
             String(s).padStart(2,'0');
-
     }, 1000);
 }
 
 async function endWork() {
 
-    clearInterval(timer);
+    const btn = document.getElementById("finishBtn");
+    const status = document.getElementById("status");
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+    btn.disabled = true;
+    btn.classList.add("loading");
+    status.innerText = "Sender rapport...";
 
-    let time = document.getElementById("timeInput").value;
-    let notes = document.getElementById("notes").value;
-    let checks = document.querySelectorAll(".task");
+    try {
 
-    let y = 10;
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
 
-    doc.setFontSize(18);
-    doc.text("Jobbkort 41 - Brann og innbruddsalarm", 10, y);
-    y += 10;
+        let time = document.getElementById("timeInput").value;
+        let notes = document.getElementById("notes").value;
+        let checks = document.querySelectorAll(".task");
 
-    doc.setFontSize(11);
-    doc.text("Tid: " + time, 10, y);
-    y += 10;
+        let y = 10;
 
-    doc.setFontSize(12);
-    doc.text("Kontrolliste:", 10, y);
-    y += 10;
+        doc.setFontSize(16);
+        doc.text("Jobbkort 41 - Brann og innbruddsalarm", 10, y);
+        y += 10;
 
-    checks.forEach(c => {
+        doc.setFontSize(11);
+        doc.text("Tid: " + time, 10, y);
+        y += 10;
 
-        let text = c.parentElement.innerText;
+        doc.setFontSize(12);
+        doc.text("Kontrolliste:", 10, y);
+        y += 10;
 
-        if (c.checked) {
-            doc.setTextColor(0,150,0);
-            doc.setFont(undefined,"bold");
-            doc.text("✔ OK", 10, y);
-        } else {
-            doc.setTextColor(220,0,0);
-            doc.setFont(undefined,"bold");
-            doc.text("✘ MANGLER", 10, y);
+        checks.forEach(c => {
+
+            let text = c.parentElement.innerText;
+
+            if (c.checked) {
+                doc.setTextColor(0,150,0);
+                doc.text("✔ OK", 10, y);
+            } else {
+                doc.setTextColor(220,0,0);
+                doc.text("✘ MANGLER", 10, y);
+            }
+
+            doc.setTextColor(0,0,0);
+
+            let lines = doc.splitTextToSize(text, 150);
+            doc.text(lines, 35, y);
+
+            y += lines.length * 6 + 3;
+        });
+
+        doc.text("Notater:", 10, y + 10);
+        doc.text(notes || "-", 10, y + 20);
+
+        const pdfBlob = doc.output("blob");
+
+        const formData = new FormData();
+        formData.append("file", pdfBlob, "jobbkort41.pdf");
+
+        const photos = document.getElementById("photos").files;
+
+        for (let i = 0; i < photos.length; i++) {
+            formData.append("photos", photos[i]);
         }
 
-        doc.setTextColor(0,0,0);
-        doc.setFont(undefined,"normal");
+        const res = await fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev", {
+            method: "POST",
+            body: formData
+        });
 
-        let lines = doc.splitTextToSize(text, 150);
-        doc.text(lines, 35, y);
+        const text = await res.text();
+        console.log(text);
 
-        y += lines.length * 6 + 3;
-    });
+        btn.classList.remove("loading");
+        btn.classList.add("success");
+        btn.innerText = "✓ SENDT";
+        status.innerText = "Rapport sendt!";
 
-    y += 5;
+    } catch (err) {
 
-    doc.setFontSize(12);
-    doc.text("Notater:", 10, y);
-    y += 8;
+        console.error(err);
 
-    doc.setFontSize(10);
-    doc.text(doc.splitTextToSize(notes || "-", 180), 10, y);
+        btn.disabled = false;
+        btn.classList.remove("loading");
+        status.innerText = "Feil ved sending";
 
-    const pdfBlob = doc.output("blob");
-
-    const formData = new FormData();
-    formData.append("file", pdfBlob, "jobbkort41.pdf");
-
-    const photos = document.getElementById("photos").files;
-
-    for (let i = 0; i < photos.length; i++) {
-        formData.append("photos", photos[i]);
     }
-
-    fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev", {
-        method: "POST",
-        body: formData
-    });
-
-    window.location.href = "ferdig.html";
 }
 
 </script>
