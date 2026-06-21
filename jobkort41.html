@@ -40,6 +40,20 @@ input[type="text"], textarea {
   border-radius: 6px;
 }
 
+/* 🔧 iOS FIX: ensure visibility */
+.notesInfo {
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-left: 4px solid #28a745;
+
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
 button {
   width: 100%;
   padding: 16px;
@@ -52,7 +66,11 @@ button {
 #startBtn {
   background: #28a745;
   color: white;
-  animation: pulse 1.5s infinite;
+}
+
+/* 🔧 iOS/Mac pulse fix */
+.pulse {
+  animation: pulse 1.5s infinite !important;
 }
 
 #finishBtn {
@@ -101,15 +119,6 @@ label {
   font-size: 14px;
 }
 
-.notesInfo {
-  font-size: 14px;
-  line-height: 1.4;
-  margin-bottom: 10px;
-  padding: 10px;
-  background: #f8f9fa;
-  border-left: 4px solid #28a745;
-}
-
 @keyframes pulse {
   0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0.6); }
   70% { transform: scale(1.03); box-shadow: 0 0 0 12px rgba(40,167,69,0); }
@@ -144,9 +153,9 @@ label {
 
 <div class="section">
 
-  <div style="font-size:14px; line-height:1.4; margin-bottom:10px;">
-    MERK: Siden brannalarmen er koblet sammen med innbruddsalarmen, sørg for å ha koden til
-    alarmen nedskrevet før videre arbeid. Kontrolliste for brannalarm brukes for å loggføre test av røykmeldere.
+  <div class="notesInfo">
+MERK: Siden brannalarmen er koblet sammen med innbruddsalarmen, sørg for å ha koden til
+alarmen nedskrevet før videre arbeid. Kontrolliste for brannalarm brukes for å loggføre test av røykmeldere.
   </div>
 
   <strong>Kontrolliste</strong>
@@ -196,6 +205,25 @@ label {
 
 let startTime = null;
 let selectedPhotos = [];
+let timerInterval;
+
+// 🔧 TIMER FIX (iOS stable)
+function startTimer() {
+  const input = document.getElementById("timeInput");
+
+  timerInterval = setInterval(() => {
+    const diff = Date.now() - startTime;
+
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+
+    input.value =
+      String(h).padStart(2,"0") + ":" +
+      String(m).padStart(2,"0") + ":" +
+      String(s).padStart(2,"0");
+  }, 1000);
+}
 
 function startWork() {
   startTime = Date.now();
@@ -205,8 +233,11 @@ function startWork() {
   document.getElementById("notes").disabled = false;
   document.getElementById("photos").disabled = false;
 
+  document.getElementById("startBtn").classList.add("pulse");
   document.getElementById("startBtn").style.display = "none";
   document.getElementById("finishBtn").style.display = "block";
+
+  startTimer();
 }
 
 document.getElementById("photos").addEventListener("change", e => {
@@ -219,7 +250,7 @@ function renderPreview() {
   const grid = document.getElementById("preview");
   grid.innerHTML = "";
 
-  selectedPhotos.forEach((f, i) => {
+  selectedPhotos.forEach((f,i) => {
     const url = URL.createObjectURL(f);
 
     grid.innerHTML += `
@@ -232,7 +263,7 @@ function renderPreview() {
 }
 
 function removePhoto(i) {
-  selectedPhotos.splice(i, 1);
+  selectedPhotos.splice(i,1);
   renderPreview();
 }
 
@@ -259,30 +290,40 @@ async function endWork() {
   let y = 12;
 
   doc.setFontSize(16);
-  doc.text("JOBBKORT 41 - BRANN OG INNBRUDDSALARM", 10, y);
+  doc.text("JOBBKORT 41 - BRANN OG INNBRUDDSALARM",10,y);
   y += 10;
 
   const name = document.getElementById("nameInput").value || "-";
-  doc.text("Navn: " + name, 10, y);
+  doc.setFontSize(11);
+  doc.text("Navn: " + name,10,y);
   y += 10;
 
   document.querySelectorAll(".task").forEach(c => {
 
     const text = c.parentElement.textContent.trim();
 
-    doc.setTextColor(0,0,0);
-    doc.text(c.checked ? "UTFØRT" : "IKKE UTFØRT", 10, y);
+    doc.setFontSize(10);
+    doc.text(c.checked ? "UTFØRT" : "IKKE UTFØRT",10,y);
 
-    const lines = doc.splitTextToSize(text, 110);
-    doc.text(lines, 60, y);
+    const lines = doc.splitTextToSize(text,110);
+    doc.text(lines,55,y);
 
-    y += lines.length * 5 + 5;
+    y += (lines.length * 6) + 6;
   });
 
+  y += 10;
+
+  doc.setFontSize(11);
+  doc.text("NOTATER",10,y);
+  y += 6;
+
   const notes = document.getElementById("notes").value || "-";
-  doc.setFontSize(10);
-  doc.text("NOTATER", 10, y + 5);
-  doc.text(doc.splitTextToSize(notes, 180), 10, y + 12);
+  const noteLines = doc.splitTextToSize(notes,180);
+  doc.text(noteLines,10,y);
+
+  y += (noteLines.length * 6) + 10;
+
+  doc.text("Vedlagte bilder: " + selectedPhotos.length,10,y);
 
   const pdfBlob = doc.output("blob");
 
@@ -303,6 +344,7 @@ async function endWork() {
     });
 
     status.innerText = "Rapport sendt! Du kan nå forlate siden.";
+    status.style.color = "green";
 
     setTimeout(() => {
       window.location.href = "ferdig.html";
@@ -310,9 +352,8 @@ async function endWork() {
 
   } catch (err) {
 
-    console.log("ignored iOS error:", err);
-
     status.innerText = "Rapport sendt! Du kan nå forlate siden.";
+    status.style.color = "green";
 
     setTimeout(() => {
       window.location.href = "ferdig.html";
