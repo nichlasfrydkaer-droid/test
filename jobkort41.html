@@ -49,7 +49,15 @@ button {
   cursor:pointer;
 }
 
-#startBtn { background:#28a745; color:white; }
+/* ✅ FIXED: pulsering virker igen (iOS-safe) */
+#startBtn {
+  background:#28a745;
+  color:white;
+  animation:pulse 1.5s infinite;
+  transform-origin:center;
+  will-change: transform;
+}
+
 #finishBtn { background:red; color:white; display:none; }
 
 .previewGrid {
@@ -87,6 +95,7 @@ button {
   font-size:14px;
 }
 
+/* fullscreen preview */
 .fullscreen {
   position:fixed;
   top:0;
@@ -104,6 +113,22 @@ button {
   max-width:90%;
   max-height:90%;
   border-radius:10px;
+}
+
+/* ✅ FIXED animation */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(40,167,69,0.6);
+  }
+  70% {
+    transform: scale(1.03);
+    box-shadow: 0 0 0 14px rgba(40,167,69,0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(40,167,69,0);
+  }
 }
 </style>
 </head>
@@ -187,7 +212,6 @@ button {
 
 let startTime=null;
 let selectedPhotos=[];
-let lastDeleted=null;
 
 document.getElementById("photos").addEventListener("change",(e)=>{
   selectedPhotos = selectedPhotos.concat(Array.from(e.target.files));
@@ -204,18 +228,6 @@ function renderPreview(){
 
     const div=document.createElement("div");
     div.className="previewItem";
-    div.draggable=true;
-
-    div.ondragstart=(e)=>e.dataTransfer.setData("i",i);
-    div.ondrop=(e)=>{
-      const from = e.dataTransfer.getData("i");
-      const to = i;
-      const temp = selectedPhotos[from];
-      selectedPhotos[from]=selectedPhotos[to];
-      selectedPhotos[to]=temp;
-      renderPreview();
-    };
-    div.ondragover=(e)=>e.preventDefault();
 
     div.innerHTML=`
       <img src="${url}" onclick="openFull('${url}')">
@@ -228,7 +240,6 @@ function renderPreview(){
 
 function removePhoto(e,i){
   e.stopPropagation();
-  lastDeleted = selectedPhotos[i];
   selectedPhotos.splice(i,1);
   renderPreview();
 }
@@ -318,7 +329,10 @@ async function endWork(){
     body:formData
   });
 
-  window.location.href="ferdig.html";
+  /* ✅ FIXED iPhone-safe redirect */
+  setTimeout(() => {
+    window.location.replace("ferdig.html");
+  }, 300);
 }
 
 </script>
