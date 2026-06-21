@@ -40,7 +40,7 @@ input[type="text"], textarea {
   border-radius: 6px;
 }
 
-/* 🔧 FIX 1: iOS tekst visibility */
+/* FIX 1: ensure visibility iOS + Mac */
 .notesInfo {
   font-size: 14px;
   line-height: 1.4;
@@ -51,6 +51,7 @@ input[type="text"], textarea {
 
   display: block;
   width: 100%;
+  max-width: 100%;
 
   white-space: normal;
   word-break: break-word;
@@ -71,8 +72,10 @@ button {
   color: white;
 }
 
+/* FIX 2: force pulse on all devices */
 .pulse {
   animation: pulse 1.5s infinite !important;
+  -webkit-animation: pulse 1.5s infinite !important;
 }
 
 #finishBtn {
@@ -155,10 +158,9 @@ label {
 
 <div class="section">
 
-  <!-- FIX 2: iOS visible block -->
+  <!-- FIX 1 PLACEMENT (IMPORTANT) -->
   <div class="notesInfo">
-MERK: Siden brannalarmen er koblet sammen med innbruddsalarmen, sørg for å ha koden til
-alarmen nedskrevet før videre arbeid. Kontrolliste for brannalarm brukes for å loggføre test av røykmeldere.
+Noter nedenfor ting som du oppdaget og som du selv ikke kan eller har lov til å gjøre noe med. Gi deretter kortet til driftsutvalget.
   </div>
 
   <strong>Kontrolliste</strong>
@@ -235,8 +237,11 @@ function startWork() {
   document.getElementById("notes").disabled = false;
   document.getElementById("photos").disabled = false;
 
-  document.getElementById("startBtn").classList.add("pulse");
-  document.getElementById("startBtn").style.display = "none";
+  // FIX 2 ONLY (pulse safety)
+  const btn = document.getElementById("startBtn");
+  btn.classList.add("pulse");
+
+  btn.style.display = "none";
   document.getElementById("finishBtn").style.display = "block";
 
   startTimer();
@@ -306,16 +311,8 @@ async function endWork() {
 
     doc.setFontSize(10);
 
-    // FIX 3: iOS color safe
-    if(c.checked){
-      doc.setTextColor(0,150,0);
-      doc.text("UTFØRT",10,y);
-    } else {
-      doc.setTextColor(200,0,0);
-      doc.text("IKKE UTFØRT",10,y);
-    }
-
     doc.setTextColor(0,0,0);
+    doc.text(c.checked ? "UTFØRT" : "IKKE UTFØRT",10,y);
 
     const lines = doc.splitTextToSize(text,110);
     doc.text(lines,55,y);
