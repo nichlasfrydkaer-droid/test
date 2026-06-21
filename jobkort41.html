@@ -9,11 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
 
 <style>
-
-/* 🔥 GLOBAL IOS FIX */
-* {
-  box-sizing: border-box;
-}
+* { box-sizing:border-box; }
 
 body {
   font-family: Arial;
@@ -28,50 +24,26 @@ body {
   padding:20px;
 }
 
-h1 {
-  text-align:center;
-}
+h1 { text-align:center; }
 
 .section {
   margin-top:20px;
   padding-bottom:15px;
   border-bottom:1px solid #ddd;
-  width:100%;
-  padding-right:12px;
 }
 
-/* 🔥 IOS INPUT FIX (NAVN + TEXTAREA) */
 input[type="text"],
 textarea {
   width:100%;
   max-width:100%;
-  display:block;
-
   padding:12px;
-  margin:0;
-
+  font-size:16px;
   border:2px solid #ccc;
   border-radius:6px;
-
-  font-size:16px;
-  background:#fff;
-  color:#111;
-
   -webkit-appearance:none;
-  appearance:none;
 }
 
-textarea {
-  resize:vertical;
-}
-
-label {
-  display:block;
-  margin:10px 0;
-  line-height:1.4;
-  max-width:100%;
-  overflow-wrap:break-word;
-}
+textarea { resize:vertical; }
 
 button {
   width:100%;
@@ -94,11 +66,16 @@ button {
   display:none;
 }
 
+label {
+  display:block;
+  margin:10px 0;
+  line-height:1.4;
+}
+
 .previewGrid {
   display:grid;
   grid-template-columns:repeat(3,1fr);
   gap:10px;
-  margin-top:10px;
 }
 
 .previewItem {
@@ -116,40 +93,31 @@ button {
   position:absolute;
   top:5px;
   right:5px;
+  width:20px;
+  height:20px;
+  border-radius:50%;
   background:red;
   color:white;
   border:none;
-  border-radius:50%;
-  width:20px;
-  height:20px;
   display:flex;
   align-items:center;
   justify-content:center;
 }
 
-/* 📱 INFO BOX (FIX FOR USYNLIG TEKST) */
 .notesInfo {
   font-size:14px;
   line-height:1.5;
-  color:#111;
-  margin:10px 0 12px 0;
+  margin:10px 0;
   padding:10px;
   background:#f8f9fa;
   border-left:4px solid #28a745;
-  border-radius:4px;
-
-  display:block;
-  width:100%;
-  word-break:break-word;
-  -webkit-text-size-adjust:100%;
 }
 
 @keyframes pulse {
-  0% { transform:scale(1); box-shadow:0 0 0 0 rgba(40,167,69,0.6); }
-  70% { transform:scale(1.03); box-shadow:0 0 0 14px rgba(40,167,69,0); }
-  100% { transform:scale(1); box-shadow:0 0 0 0 rgba(40,167,69,0); }
+  0% { transform:scale(1); }
+  70% { transform:scale(1.03); }
+  100% { transform:scale(1); }
 }
-
 </style>
 </head>
 
@@ -160,7 +128,7 @@ button {
 <h1>JOBBKORT 41 - BRANN OG INNBRUDDSALARM</h1>
 
 <div class="section">
-  <strong>Tid brukt</strong>
+  <strong>Tid</strong>
   <input type="text" id="timeInput" disabled>
 </div>
 
@@ -174,55 +142,49 @@ button {
 </div>
 
 <div class="section">
-  <button id="finishBtn" onclick="endWork()">Ferdigmeld og send</button>
+  <button id="finishBtn" onclick="endWork()">Ferdigmeld</button>
 </div>
 
 <div class="section">
 
-  <div style="font-size:14px; line-height:1.5; margin-bottom:10px;">
+  <div class="notesInfo">
     MERK: Siden brannalarmen er koblet sammen med innbruddsalarmen, sørg for å ha koden til alarmen nedskrevet før videre arbeid. Kontrolliste for brannalarm brukes for å loggføre test av røykmeldere.
   </div>
 
-  <strong>Kontrolliste</strong>
-
   <label><input type="checkbox" class="task" disabled>
-    Test røykmeldere med egnet testgass og kontroller at brannalarmen aktiveres. Test minst 1 forskjellig detektor hver gang. Loggfør hvilken detektor som ble testet i egen kontrolliste.
+    Test røykmeldere med testgass og kontroller aktivering.
   </label>
 
   <label><input type="checkbox" class="task" disabled>
-    Sørg for at kontrollen blir dokumentert av vedlikeholdskoordinatoren i MNT-skjema. Hvis noe ikke fungerer så er det viktig at dette blir registrert og at man gjør tiltak for å rette feilen så snart som mulig.
+    Dokumentasjon i MNT-skjema.
   </label>
 
   <label><input type="checkbox" class="task" disabled>
-    Sjekk om brannalarmen er satt i drift igjen ved å taste alarmkoden.
+    Sjekk brannalarm tilbake i drift.
   </label>
 
   <label><input type="checkbox" class="task" disabled>
-    Aktiver innbruddsalarmen, test funksjonen ved å utløse bevegelsessensor.
+    Test innbruddsalarm.
   </label>
 
   <label><input type="checkbox" class="task" disabled>
-    Sjekk om innbruddsalarmen er satt i drift igjen ved å taste alarmkoden.
+    Sjekk innbruddsalarm tilbake i drift.
   </label>
 
   <label><input type="checkbox" class="task" disabled>
-    Sjekk datoen for siste batteriskift. Batteriet må maks være 3 år gammelt. (Noter dato på batteriet når det er nytt)
+    Batterisjekk (max 3 år).
   </label>
+
 </div>
 
 <div class="section">
   <strong>Bilder</strong>
-  <input type="file" id="photos" accept="image/*" multiple disabled>
+  <input type="file" id="photos" multiple disabled>
   <div class="previewGrid" id="preview"></div>
 </div>
 
 <div class="section">
   <strong>Notater</strong>
-
-  <div class="notesInfo">
-    Noter nedenfor ting som du oppdaget og som du selv ikke kan eller har lov til å gjøre noe med. Gi deretter kortet til driftsutvalget.
-  </div>
-
   <textarea id="notes" disabled></textarea>
 </div>
 
@@ -242,19 +204,13 @@ document.getElementById("photos").addEventListener("change",(e)=>{
 function renderPreview(){
   const grid=document.getElementById("preview");
   grid.innerHTML="";
-
   selectedPhotos.forEach((f,i)=>{
     const url=URL.createObjectURL(f);
-
-    const div=document.createElement("div");
-    div.className="previewItem";
-
-    div.innerHTML=`
-      <img src="${url}">
-      <button class="removeBtn" onclick="removePhoto(${i})">×</button>
-    `;
-
-    grid.appendChild(div);
+    grid.innerHTML += `
+      <div class="previewItem">
+        <img src="${url}">
+        <button class="removeBtn" onclick="removePhoto(${i})">×</button>
+      </div>`;
   });
 }
 
@@ -304,16 +260,14 @@ async function endWork(){
   let y=12;
 
   doc.setFontSize(18);
-  doc.text("JOBBKORT 41 - BRANN OG INNBRUDDSALARM",10,y);
+  doc.text("JOBBKORT 41",10,y);
   y+=10;
 
-  const name = document.getElementById("nameInput").value || "-";
   doc.setFontSize(10);
-  doc.text("Navn: " + name,10,y);
+  doc.text("Navn: " + (document.getElementById("nameInput").value || "-"),10,y);
   y+=10;
 
   document.querySelectorAll(".task").forEach(c=>{
-
     const text = c.parentElement.textContent.trim();
 
     if(c.checked){
@@ -331,7 +285,6 @@ async function endWork(){
   });
 
   const notes = document.getElementById("notes").value || "-";
-
   doc.setFontSize(9);
   doc.text("NOTATER",10,y);
   doc.text(doc.splitTextToSize(notes,180),10,y+8);
@@ -346,16 +299,23 @@ async function endWork(){
     formData.append("photos",p,p.name);
   }
 
-  // 📱 IOS SAFE REDIRECT FIX
-  setTimeout(()=>{
-    window.location.href="ferdig.html";
-  },150);
+  try {
 
-  fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev",{
-    method:"POST",
-    body:formData
-  }).catch(()=>{});
+    const res = await fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev",{
+      method:"POST",
+      body:formData
+    });
 
+    const text = await res.text();
+    console.log("WORKER:", text);
+
+    // ✅ redirect KUN efter success
+    window.location.href = "ferdig.html";
+
+  } catch(err) {
+    alert("Feil ved sending. Prøv igjen.");
+    console.error(err);
+  }
 }
 
 </script>
