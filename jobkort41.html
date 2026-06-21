@@ -3,51 +3,82 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Jobbkort 41 - Brann og innbruddsalarm</title>
+<title>Jobbkort 41</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    background: #f4f6f8;
+body { font-family: Arial; margin:0; background:#f4f6f8; }
+.container { max-width:900px; margin:auto; background:white; padding:20px; }
+
+h1 { text-align:center; }
+
+.section {
+  margin-top:20px;
+  padding-bottom:15px;
+  border-bottom:1px solid #ddd;
 }
 
-.container {
-    max-width: 700px;
-    margin: auto;
-    padding: 20px;
+label {
+  display:block;
+  margin:10px 0;
+  line-height:1.4;
 }
 
-h1 {
-    text-align: center;
-    margin-bottom: 30px;
+input, textarea, button {
+  font-size:16px;
 }
 
-.button-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+input[type="checkbox"] {
+  transform:scale(1.2);
+  margin-right:8px;
+}
+
+textarea {
+  width:100%;
+  padding:10px;
 }
 
 button {
-    padding: 18px;
-    font-size: 18px;
-    font-weight: 700;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    background: #1f6feb;
-    color: white;
+  width:100%;
+  padding:16px;
+  font-weight:bold;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
 }
 
-button:hover {
-    background: #0f4fc2;
+#startBtn { background:#28a745; color:white; }
+#finishBtn { background:red; color:white; display:none; }
+
+.previewGrid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-top:10px;
 }
 
-.disabled {
-    background: #c7c7c7;
-    color: #666;
-    cursor: not-allowed;
+.previewItem { position:relative; }
+
+.previewItem img {
+  width:100%;
+  height:90px;
+  object-fit:cover;
+  border-radius:6px;
+}
+
+.removeBtn {
+  position:absolute;
+  top:4px;
+  right:4px;
+  background:red;
+  color:white;
+  border:none;
+  border-radius:50%;
+  width:22px;
+  height:22px;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -56,36 +87,231 @@ button:hover {
 
 <div class="container">
 
-<h1>JOBBKORT 41 - Brann og innbruddsalarm</h1>
+<h1>JOBBKORT 41 - BRANN OG INNBRUDDSALARM</h1>
 
-<div class="button-grid">
+<div class="section">
+  <strong>Tid brukt</strong>
+  <input type="text" id="timeInput" disabled>
+</div>
 
-    <!-- ✅ RETTET HER -->
-    <button onclick="openWork()">
-        Åpne jobbkort
-    </button>
+<!-- NAVN -->
+<div class="section">
+  <strong>Navn</strong>
+  <input type="text" id="nameInput" disabled>
+</div>
 
-    <button class="disabled" disabled>
-        Skriv ut
-    </button>
+<div class="section">
+  <button id="startBtn" onclick="startWork()">Start arbeidet</button>
+</div>
 
-    <button class="disabled" disabled>
-        Sikker jobb analyse
-    </button>
+<div class="section">
+  <button id="finishBtn" onclick="endWork()">Ferdigmeld og send</button>
+</div>
 
-    <button class="disabled" disabled>
-        Veiledning
-    </button>
+<div class="section">
 
+  <div style="margin-bottom:15px; font-size:14px; line-height:1.4;">
+    MERK: Siden brannalarmen er koblet sammen med innbruddsalarmen, sørg for å ha koden til
+    alarmen nedskrevet før videre arbeid. Kontrolliste for brannalarm brukes for å loggføre test av røykmeldere.
+  </div>
+
+  <strong>Kontrolliste</strong>
+
+  <label><input type="checkbox" class="task" disabled>
+    Test røykmeldere med egnet testgass og kontroller at brannalarmen aktiveres. Test minst 1 forskjellig detektor hver gang. Loggfør hvilken detektor som ble testet i egen kontrolliste.
+  </label>
+
+  <label><input type="checkbox" class="task" disabled>
+    Sørg for at kontrollen blir dokumentert av vedlikeholdskoordinatoren i MNT-skjema. Hvis noe ikke fungerer så er det viktig at dette blir registrert og at man gjør tiltak for å rette feilen så snart som mulig.
+  </label>
+
+  <label><input type="checkbox" class="task" disabled>
+    Sjekk om brannalarmen er satt i drift igjen ved å taste alarmkoden.
+  </label>
+
+  <label><input type="checkbox" class="task" disabled>
+    Aktiver innbruddsalarmen, test funksjonen ved å utløse bevegelsessensor.
+  </label>
+
+  <label><input type="checkbox" class="task" disabled>
+    Sjekk om innbruddsalarmen er satt i drift igjen ved å taste alarmkoden.
+  </label>
+
+  <label><input type="checkbox" class="task" disabled>
+    Sjekk datoen for siste batteriskift. Batteriet må maks være 3 år gammelt. (Noter dato på batteriet når det er nytt)
+  </label>
+</div>
+
+<div class="section">
+  <strong>Bilder</strong>
+  <input type="file" id="photos" accept="image/*" multiple disabled>
+  <div class="previewGrid" id="preview"></div>
+</div>
+
+<div class="section">
+
+  <strong>Notater</strong>
+
+  <div style="margin:10px 0; font-size:14px; line-height:1.4;">
+    Noter nedenfor ting som du oppdaget og som du selv ikke kan eller har lov til å gjøre noe med. Gi deretter kortet til driftsutvalget.
+  </div>
+
+  <textarea id="notes" disabled></textarea>
 </div>
 
 </div>
 
 <script>
 
-// 🔥 HER ER FIXEN
-function openWork() {
-    window.location.href = "jobkort41_work.html";
+let startTime=null;
+let selectedPhotos=[];
+
+document.getElementById("photos").addEventListener("change",(e)=>{
+  selectedPhotos=selectedPhotos.concat(Array.from(e.target.files));
+  e.target.value="";
+  renderPreview();
+});
+
+function renderPreview(){
+  const grid=document.getElementById("preview");
+  grid.innerHTML="";
+
+  selectedPhotos.forEach((f,i)=>{
+    const url=URL.createObjectURL(f);
+    const div=document.createElement("div");
+    div.className="previewItem";
+    div.innerHTML=`
+      <img src="${url}">
+      <button class="removeBtn" onclick="removePhoto(${i})">×</button>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+function removePhoto(i){
+  selectedPhotos.splice(i,1);
+  renderPreview();
+}
+
+function startWork(){
+  startTime=Date.now();
+
+  document.querySelectorAll(".task").forEach(e=>e.disabled=false);
+  document.getElementById("notes").disabled=false;
+  document.getElementById("photos").disabled=false;
+  document.getElementById("nameInput").disabled=false;
+
+  document.getElementById("startBtn").style.display="none";
+  document.getElementById("finishBtn").style.display="block";
+
+  setInterval(()=>{
+    let d=Date.now()-startTime;
+    let h=Math.floor(d/3600000);
+    let m=Math.floor(d%3600000/60000);
+    let s=Math.floor(d%60000/1000);
+
+    document.getElementById("timeInput").value=
+      String(h).padStart(2,'0')+":"+
+      String(m).padStart(2,'0')+":"+
+      String(s).padStart(2,'0');
+  },1000);
+}
+
+async function compress(files){
+  const out=[];
+  for(const f of files){
+    try{
+      out.push(await imageCompression(f,{
+        maxSizeMB:0.4,
+        maxWidthOrHeight:1600
+      }));
+    }catch{
+      out.push(f);
+    }
+  }
+  return out;
+}
+
+async function endWork(){
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let y=12;
+
+  doc.setFontSize(18);
+  doc.setFont(undefined,"bold");
+  doc.text("JOBBKORT 41 - BRANN OG INNBRUDDSALARM",10,y);
+
+  y+=10;
+
+  // NAVN (SAFE)
+  const name = document.getElementById("nameInput").value || "-";
+  doc.setFontSize(10);
+  doc.text("Navn: " + name, 10, y);
+  y+=10;
+
+  document.querySelectorAll(".task").forEach(c=>{
+
+    const text = c.parentElement.childNodes[1].textContent.trim();
+
+    const statusX=10;
+    const textX=75;
+    const maxWidth=115;
+
+    doc.setFontSize(6);
+
+    if(c.checked){
+      doc.setTextColor(0,140,0);
+      doc.text("UTFØRT",statusX,y);
+    }else{
+      doc.setTextColor(200,0,0);
+      doc.text("IKKE UTFØRT",statusX,y);
+    }
+
+    doc.setTextColor(0,0,0);
+    doc.setFontSize(7);
+
+    const lines=doc.splitTextToSize(text,maxWidth);
+    doc.text(lines,textX,y);
+
+    y+=lines.length*6+4;
+  });
+
+  y+=10;
+
+  doc.setFontSize(7);
+  doc.setFont(undefined,"bold");
+  doc.text("NOTATER",10,y);
+  y+=8;
+
+  doc.setFont(undefined,"normal");
+
+  const notes=document.getElementById("notes").value||"-";
+  doc.text(doc.splitTextToSize(notes,180),10,y);
+
+  y+=15;
+
+  doc.setFontSize(8);
+  doc.text(`Vedlagte bilder: ${selectedPhotos.length}`,10,y);
+
+  const pdfBlob=doc.output("blob");
+
+  const formData=new FormData();
+  formData.append("file",pdfBlob,"jobbkort.pdf");
+
+  const compressed=await compress(selectedPhotos);
+
+  for(const p of compressed){
+    formData.append("photos",p,p.name);
+  }
+
+  await fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev",{
+    method:"POST",
+    body:formData
+  }).catch(()=>{});
+
+  window.location.href="ferdig.html";
 }
 
 </script>
