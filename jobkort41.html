@@ -30,6 +30,19 @@ input, textarea, button {
   font-size:16px;
 }
 
+/* ✅ FIX: iPhone visibility for name input */
+#nameInput {
+  width:100%;
+  padding:12px;
+  border:2px solid #ccc;
+  border-radius:6px;
+  background:white;
+  color:black;
+  font-size:16px;
+  -webkit-appearance:none;
+  appearance:none;
+}
+
 input[type="checkbox"] {
   transform:scale(1.2);
   margin-right:8px;
@@ -49,15 +62,7 @@ button {
   cursor:pointer;
 }
 
-/* ✅ FIXED: pulsering virker igen (iOS-safe) */
-#startBtn {
-  background:#28a745;
-  color:white;
-  animation:pulse 1.5s infinite;
-  transform-origin:center;
-  will-change: transform;
-}
-
+#startBtn { background:#28a745; color:white; animation:pulse 1.5s infinite; }
 #finishBtn { background:red; color:white; display:none; }
 
 .previewGrid {
@@ -95,7 +100,6 @@ button {
   font-size:14px;
 }
 
-/* fullscreen preview */
 .fullscreen {
   position:fixed;
   top:0;
@@ -115,20 +119,11 @@ button {
   border-radius:10px;
 }
 
-/* ✅ FIXED animation */
+/* pulse animation */
 @keyframes pulse {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(40,167,69,0.6);
-  }
-  70% {
-    transform: scale(1.03);
-    box-shadow: 0 0 0 14px rgba(40,167,69,0);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(40,167,69,0);
-  }
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0.6); }
+  70% { transform: scale(1.03); box-shadow: 0 0 0 14px rgba(40,167,69,0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0); }
 }
 </style>
 </head>
@@ -297,22 +292,29 @@ async function endWork(){
   doc.text("JOBBKORT 41 - BRANN OG INNBRUDDSALARM",10,y);
   y+=10;
 
-  const name=document.getElementById("nameInput").value||"-";
+  const name = (document.getElementById("nameInput").value || "").trim() || "-";
   doc.setFontSize(10);
-  doc.text("Navn: "+name,10,y);
+  doc.text("Navn: " + name, 10, y);
   y+=10;
 
   document.querySelectorAll(".task").forEach(c=>{
     const text=c.parentElement.textContent.trim();
 
     doc.setFontSize(7);
-    doc.text(c.checked?"UTFØRT":"IKKE UTFØRT",10,y);
+    doc.text(c.checked ? "UTFØRT" : "IKKE UTFØRT", 10, y);
 
     const lines=doc.splitTextToSize(text,120);
     doc.text(lines,60,y);
 
     y+=lines.length*5;
   });
+
+  const notes = (document.getElementById("notes").value || "").trim() || "-";
+
+  doc.setFontSize(9);
+  doc.text("NOTATER",10,y+10);
+  doc.setFontSize(8);
+  doc.text(doc.splitTextToSize(notes,180),10,y+18);
 
   const pdfBlob=doc.output("blob");
 
@@ -329,10 +331,10 @@ async function endWork(){
     body:formData
   });
 
-  /* ✅ FIXED iPhone-safe redirect */
+  /* 📱 iPhone SAFE redirect */
   setTimeout(() => {
-    window.location.replace("ferdig.html");
-  }, 300);
+    window.location.href = "ferdig.html";
+  }, 800);
 }
 
 </script>
