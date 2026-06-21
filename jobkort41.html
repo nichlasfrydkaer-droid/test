@@ -9,114 +9,113 @@
 <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
 
 <style>
-* { box-sizing:border-box; }
+* { box-sizing: border-box; }
 
 body {
   font-family: Arial;
-  margin:0;
-  background:#f4f6f8;
+  margin: 0;
+  background: #f4f6f8;
 }
 
 .container {
-  max-width:900px;
-  margin:auto;
-  background:white;
-  padding:20px;
+  max-width: 900px;
+  margin: auto;
+  background: white;
+  padding: 20px;
 }
 
-h1 { text-align:center; }
+h1 {
+  text-align: center;
+}
 
 .section {
-  margin-top:20px;
-  padding-bottom:15px;
-  border-bottom:1px solid #ddd;
+  margin-top: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #ddd;
 }
 
-input[type="text"],
-textarea {
-  width:100%;
-  max-width:100%;
-  padding:12px;
-  font-size:16px;
-  border:2px solid #ccc;
-  border-radius:6px;
-  -webkit-appearance:none;
+input[type="text"], textarea {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
 }
-
-textarea { resize:vertical; }
 
 button {
-  width:100%;
-  padding:16px;
-  font-weight:bold;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
+  width: 100%;
+  padding: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 #startBtn {
-  background:#28a745;
-  color:white;
-  animation:pulse 1.5s infinite;
+  background: #28a745;
+  color: white;
+  animation: pulse 1.5s infinite;
 }
 
 #finishBtn {
-  background:red;
-  color:white;
-  display:none;
+  background: red;
+  color: white;
+  display: none;
 }
 
 label {
-  display:block;
-  margin:10px 0;
-  line-height:1.4;
+  display: block;
+  margin: 10px 0;
+  line-height: 1.4;
 }
 
 .previewGrid {
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .previewItem {
-  position:relative;
+  position: relative;
 }
 
 .previewItem img {
-  width:100%;
-  height:90px;
-  object-fit:cover;
-  border-radius:6px;
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 6px;
 }
 
 .removeBtn {
-  position:absolute;
-  top:5px;
-  right:5px;
-  width:20px;
-  height:20px;
-  border-radius:50%;
-  background:red;
-  color:white;
-  border:none;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: red;
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
 }
 
 .notesInfo {
-  font-size:14px;
-  line-height:1.5;
-  margin:10px 0;
-  padding:10px;
-  background:#f8f9fa;
-  border-left:4px solid #28a745;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-left: 4px solid #28a745;
 }
 
 @keyframes pulse {
-  0% { transform:scale(1); }
-  70% { transform:scale(1.03); }
-  100% { transform:scale(1); }
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0.6); }
+  70% { transform: scale(1.03); box-shadow: 0 0 0 12px rgba(40,167,69,0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0); }
 }
 </style>
 </head>
@@ -128,7 +127,7 @@ label {
 <h1>JOBBKORT 41 - BRANN OG INNBRUDDSALARM</h1>
 
 <div class="section">
-  <strong>Tid</strong>
+  <strong>Tid brukt</strong>
   <input type="text" id="timeInput" disabled>
 </div>
 
@@ -142,44 +141,51 @@ label {
 </div>
 
 <div class="section">
-  <button id="finishBtn" onclick="endWork()">Ferdigmeld</button>
+  <button id="finishBtn" onclick="endWork()">Ferdigmeld og send</button>
 </div>
 
 <div class="section">
 
-  <div class="notesInfo">
-    MERK: Siden brannalarmen er koblet sammen med innbruddsalarmen, sørg for å ha koden til alarmen nedskrevet før videre arbeid. Kontrolliste for brannalarm brukes for å loggføre test av røykmeldere.
+  <!-- ORIGINAL TEKST (100% UENDRET) -->
+  <div style="font-size:14px; line-height:1.4; margin-bottom:10px;">
+
+    MERK: Siden brannalarmen er koblet sammen med innbruddsalarmen, sørg for å ha koden til
+
+    alarmen nedskrevet før videre arbeid. Kontrolliste for brannalarm brukes for å loggføre test av røykmeldere.
+
   </div>
 
+  <strong>Kontrolliste</strong>
+
   <label><input type="checkbox" class="task" disabled>
-    Test røykmeldere med testgass og kontroller aktivering.
+    Test røykmeldere med egnet testgass og kontroller at brannalarmen aktiveres. Test minst 1 forskjellig detektor hver gang. Loggfør hvilken detektor som ble testet i egen kontrolliste.
   </label>
 
   <label><input type="checkbox" class="task" disabled>
-    Dokumentasjon i MNT-skjema.
+    Sørg for at kontrollen blir dokumentert av vedlikeholdskoordinatoren i MNT-skjema. Hvis noe ikke fungerer så er det viktig at dette blir registrert og at man gjør tiltak for å rette feilen så snart som mulig.
   </label>
 
   <label><input type="checkbox" class="task" disabled>
-    Sjekk brannalarm tilbake i drift.
+    Sjekk om brannalarmen er satt i drift igjen ved å taste alarmkoden.
   </label>
 
   <label><input type="checkbox" class="task" disabled>
-    Test innbruddsalarm.
+    Aktiver innbruddsalarmen, test funksjonen ved å utløse bevegelsessensor.
   </label>
 
   <label><input type="checkbox" class="task" disabled>
-    Sjekk innbruddsalarm tilbake i drift.
+    Sjekk om innbruddsalarmen er satt i drift igjen ved å taste alarmkoden.
   </label>
 
   <label><input type="checkbox" class="task" disabled>
-    Batterisjekk (max 3 år).
+    Sjekk datoen for siste batteriskift. Batteriet må maks være 3 år gammelt. (Noter dato på batteriet når det er nytt)
   </label>
 
 </div>
 
 <div class="section">
   <strong>Bilder</strong>
-  <input type="file" id="photos" multiple disabled>
+  <input type="file" id="photos" accept="image/*" multiple disabled>
   <div class="previewGrid" id="preview"></div>
 </div>
 
@@ -192,52 +198,49 @@ label {
 
 <script>
 
-let startTime=null;
-let selectedPhotos=[];
+let startTime = null;
+let selectedPhotos = [];
 
-document.getElementById("photos").addEventListener("change",(e)=>{
+function startWork() {
+  startTime = Date.now();
+
+  document.querySelectorAll(".task").forEach(e => e.disabled = false);
+  document.getElementById("nameInput").disabled = false;
+  document.getElementById("notes").disabled = false;
+  document.getElementById("photos").disabled = false;
+
+  document.getElementById("startBtn").style.display = "none";
+  document.getElementById("finishBtn").style.display = "block";
+}
+
+document.getElementById("photos").addEventListener("change", e => {
   selectedPhotos = selectedPhotos.concat(Array.from(e.target.files));
-  e.target.value="";
+  e.target.value = "";
   renderPreview();
 });
 
-function renderPreview(){
-  const grid=document.getElementById("preview");
-  grid.innerHTML="";
-  selectedPhotos.forEach((f,i)=>{
-    const url=URL.createObjectURL(f);
+function renderPreview() {
+  const grid = document.getElementById("preview");
+  grid.innerHTML = "";
+
+  selectedPhotos.forEach((f, i) => {
+    const url = URL.createObjectURL(f);
+
     grid.innerHTML += `
       <div class="previewItem">
         <img src="${url}">
         <button class="removeBtn" onclick="removePhoto(${i})">×</button>
-      </div>`;
+      </div>
+    `;
   });
 }
 
-function removePhoto(i){
-  selectedPhotos.splice(i,1);
+function removePhoto(i) {
+  selectedPhotos.splice(i, 1);
   renderPreview();
 }
 
-function startWork(){
-  startTime=Date.now();
-
-  document.querySelectorAll(".task").forEach(e=>e.disabled=false);
-  document.getElementById("notes").disabled=false;
-  document.getElementById("photos").disabled=false;
-  document.getElementById("nameInput").disabled=false;
-
-  document.getElementById("startBtn").style.display="none";
-  document.getElementById("finishBtn").style.display="block";
-
-  setInterval(()=>{
-    let d=Date.now()-startTime;
-    document.getElementById("timeInput").value =
-      new Date(d).toISOString().substr(11,8);
-  },1000);
-}
-
-async function compress(files){
+async function compressFiles(files){
   const out=[];
   for(const f of files){
     try{
@@ -252,68 +255,62 @@ async function compress(files){
   return out;
 }
 
-async function endWork(){
+async function endWork() {
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  let y=12;
+  let y = 12;
 
-  doc.setFontSize(18);
-  doc.text("JOBBKORT 41",10,y);
-  y+=10;
+  doc.setFontSize(16);
+  doc.text("JOBBKORT 41 - BRANN OG INNBRUDDSALARM", 10, y);
+  y += 10;
 
-  doc.setFontSize(10);
-  doc.text("Navn: " + (document.getElementById("nameInput").value || "-"),10,y);
-  y+=10;
+  doc.setFontSize(11);
+  const name = document.getElementById("nameInput").value || "-";
+  doc.text("Navn: " + name, 10, y);
+  y += 10;
 
-  document.querySelectorAll(".task").forEach(c=>{
+  document.querySelectorAll(".task").forEach(c => {
+
     const text = c.parentElement.textContent.trim();
 
-    if(c.checked){
-      doc.setTextColor(0,150,0);
-      doc.text("UTFØRT ✓",10,y);
-    } else {
-      doc.setTextColor(200,0,0);
-      doc.text("IKKE UTFØRT ✗",10,y);
-    }
+    doc.setTextColor(c.checked ? 0 : 200, c.checked ? 150 : 0, 0);
+    doc.text(c.checked ? "UTFØRT ✓" : "IKKE UTFØRT ✗", 10, y);
 
     doc.setTextColor(0,0,0);
-    doc.text(doc.splitTextToSize(text,110),60,y);
+    const lines = doc.splitTextToSize(text, 110);
+    doc.text(lines, 60, y);
 
-    y+=15;
+    y += lines.length * 5 + 5;
   });
 
+  doc.setFontSize(10);
+  doc.text("NOTATER", 10, y + 5);
+
   const notes = document.getElementById("notes").value || "-";
-  doc.setFontSize(9);
-  doc.text("NOTATER",10,y);
-  doc.text(doc.splitTextToSize(notes,180),10,y+8);
+  doc.text(doc.splitTextToSize(notes, 180), 10, y + 12);
 
   const pdfBlob = doc.output("blob");
 
   const formData = new FormData();
-  formData.append("file",pdfBlob,"jobbkort.pdf");
+  formData.append("file", pdfBlob, "jobbkort.pdf");
 
-  const compressed = await compress(selectedPhotos);
+  const compressed = await compressFiles(selectedPhotos);
   for(const p of compressed){
-    formData.append("photos",p,p.name);
+    formData.append("photos", p, p.name);
   }
 
   try {
-
-    const res = await fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev",{
-      method:"POST",
-      body:formData
+    await fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev", {
+      method: "POST",
+      body: formData
     });
 
-    const text = await res.text();
-    console.log("WORKER:", text);
-
-    // ✅ redirect KUN efter success
     window.location.href = "ferdig.html";
 
-  } catch(err) {
-    alert("Feil ved sending. Prøv igjen.");
+  } catch (err) {
+    alert("Feil ved sending");
     console.error(err);
   }
 }
