@@ -9,104 +9,74 @@
 <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
 
 <style>
-body {
-    font-family: Arial;
-    margin: 0;
-    background: #f4f6f8;
-}
-
-.container {
-    max-width: 900px;
-    margin: auto;
-    background: white;
-    padding: 20px;
-    padding-bottom: 80px;
-}
-
-h1 { text-align: center; }
+body { font-family: Arial; margin:0; background:#f4f6f8; }
+.container { max-width:900px; margin:auto; background:white; padding:20px; }
+h1 { text-align:center; }
 
 .section {
-    margin-top: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #ddd;
+    margin-top:20px;
+    padding-bottom:15px;
+    border-bottom:1px solid #ddd;
 }
 
 label {
-    display: block;
-    margin: 10px 0;
-    line-height: 1.4;
+    display:block;
+    margin:10px 0;
+    line-height:1.4;
 }
 
 input, textarea, button {
-    font-size: 16px;
+    font-size:16px;
 }
 
 input[type="checkbox"] {
-    transform: scale(1.2);
-    margin-right: 8px;
+    transform:scale(1.2);
+    margin-right:8px;
 }
 
 textarea, input[type="text"] {
-    width: 100%;
-    padding: 10px;
+    width:100%;
+    padding:10px;
 }
 
 button {
-    width: 100%;
-    padding: 16px;
-    font-weight: bold;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
+    width:100%;
+    padding:16px;
+    font-weight:bold;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
 }
 
-#startBtn {
-    background: #28a745;
-    color: white;
-}
-
-#finishBtn {
-    background: red;
-    color: white;
-    display: none;
-}
-
-#stepStatus {
-    padding: 8px;
-    background: #eee;
-    border-radius: 6px;
-    font-weight: bold;
-}
+#startBtn { background:#28a745; color:white; }
+#finishBtn { background:red; color:white; display:none; }
 
 .previewGrid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-top: 10px;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-top:10px;
 }
 
-.previewItem {
-    position: relative;
-}
+.previewItem { position:relative; }
 
 .previewItem img {
-    width: 100%;
-    height: 90px;
-    object-fit: cover;
-    border-radius: 6px;
+    width:100%;
+    height:90px;
+    object-fit:cover;
+    border-radius:6px;
 }
 
 .removeBtn {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    background: red;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 22px;
-    height: 22px;
-    cursor: pointer;
+    position:absolute;
+    top:4px;
+    right:4px;
+    background:red;
+    color:white;
+    border:none;
+    border-radius:50%;
+    width:22px;
+    height:22px;
 }
 </style>
 </head>
@@ -115,9 +85,7 @@ button {
 
 <div class="container">
 
-<h1>JOBBKORT 41</h1>
-
-<div id="stepStatus">1. Ikke startet</div>
+<h1>JOBBKORT 41 - Brann og innbruddsalarm</h1>
 
 <div class="section">
     <strong>Tid brukt</strong>
@@ -130,34 +98,33 @@ button {
 
 <div class="section">
     <button id="finishBtn" onclick="endWork()">Ferdigmeld og send</button>
-    <div id="status"></div>
 </div>
 
 <div class="section">
     <strong>Kontrolliste</strong>
 
     <label><input type="checkbox" class="task" disabled>
-        Test røykmeldere med testgass og verifiser alarmfunksjon.
+        Test røykmeldere med egnet testgass og kontroller at brannalarmen aktiveres. Test minst 1 forskjellig detektor hver gang. Loggfør hvilken detektor som ble testet i egen kontrolliste.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Dokumenter kontroll i MNT-system korrekt.
+        Sørg for at kontrollen blir dokumentert av vedlikeholdskoordinatoren i MNT-skjema. Hvis noe ikke fungerer så er det viktig at dette blir registrert og at man gjør tiltak for å rette feilen så snart som mulig.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Reset brannalarm og kontroller normal drift.
+        Sjekk om brannalarmen er satt i drift igjen ved å taste alarmkoden.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Test innbruddsalarm via bevegelsessensor.
+        Aktiver innbruddsalarmen og test bevegelsessensor.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Bekreft system tilbake i normal status.
+        Sjekk om systemet er tilbake i drift etter test.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Kontroller batteristatus (maks 3 år gammelt).
+        Sjekk dato for batteriskift (maks 3 år gammelt).
     </label>
 </div>
 
@@ -165,7 +132,7 @@ button {
     <strong>Bilder</strong>
     <input type="file" id="photos" accept="image/*" multiple disabled>
 
-    <button onclick="resetPhotos()" type="button">🧹 Fjern bilder</button>
+    <button onclick="resetPhotos()">🧹 Fjern bilder</button>
 
     <div class="previewGrid" id="preview"></div>
 </div>
@@ -180,153 +147,138 @@ button {
 <script>
 
 let startTime = null;
-let timer = null;
 let selectedPhotos = [];
+let timer = null;
 
-document.getElementById("photos").addEventListener("change", (e) => {
+function enableWork(){
+    document.querySelectorAll(".task").forEach(e=>e.disabled=false);
+    document.getElementById("notes").disabled=false;
+    document.getElementById("photos").disabled=false;
+}
+
+document.getElementById("photos").addEventListener("change",(e)=>{
     selectedPhotos = selectedPhotos.concat(Array.from(e.target.files));
-    e.target.value = "";
+    e.target.value="";
     renderPreview();
 });
 
-function renderPreview() {
-    const grid = document.getElementById("preview");
-    grid.innerHTML = "";
+function renderPreview(){
+    const grid=document.getElementById("preview");
+    grid.innerHTML="";
 
-    selectedPhotos.forEach((file, i) => {
-        const url = URL.createObjectURL(file);
-
-        const div = document.createElement("div");
-        div.className = "previewItem";
-
-        div.innerHTML = `
-            <img src="${url}">
-            <button class="removeBtn" onclick="removePhoto(${i})">×</button>
-        `;
-
+    selectedPhotos.forEach((f,i)=>{
+        const url=URL.createObjectURL(f);
+        const div=document.createElement("div");
+        div.className="previewItem";
+        div.innerHTML=`<img src="${url}"><button class="removeBtn" onclick="removePhoto(${i})">×</button>`;
         grid.appendChild(div);
     });
 }
 
-function removePhoto(i) {
-    selectedPhotos.splice(i, 1);
+function removePhoto(i){
+    selectedPhotos.splice(i,1);
     renderPreview();
 }
 
-function resetPhotos() {
-    selectedPhotos = [];
+function resetPhotos(){
+    selectedPhotos=[];
     renderPreview();
 }
 
-function startWork() {
-    startTime = Date.now();
+function startWork(){
 
-    document.getElementById("startBtn").style.display = "none";
-    document.getElementById("finishBtn").style.display = "block";
+    startTime=Date.now();
 
-    document.getElementById("stepStatus").innerText = "2. Arbeider";
+    enableWork(); // ✅ FIX: nu virker alt efter start
 
-    setInterval(() => {
-        let d = Date.now() - startTime;
+    document.getElementById("startBtn").style.display="none";
+    document.getElementById("finishBtn").style.display="block";
 
-        let h = Math.floor(d / 3600000);
-        let m = Math.floor(d % 3600000 / 60000);
-        let s = Math.floor(d % 60000 / 1000);
+    timer=setInterval(()=>{
+        let d=Date.now()-startTime;
 
-        document.getElementById("timeInput").value =
-            String(h).padStart(2,'0') + ":" +
-            String(m).padStart(2,'0') + ":" +
-            String(s).padStart(2,'0');
-    }, 1000);
+        let h=Math.floor(d/3600000);
+        let m=Math.floor(d%3600000/60000);
+        let s=Math.floor(d%60000/1000);
+
+        document.getElementById("timeInput").value=
+        String(h).padStart(2,'0')+":"+
+        String(m).padStart(2,'0')+":"+
+        String(s).padStart(2,'0');
+    },1000);
 }
 
-async function compress(files) {
-    const out = [];
-    for (const f of files) {
-        try {
-            out.push(await imageCompression(f, {
-                maxSizeMB: 0.4,
-                maxWidthOrHeight: 1600
+async function compress(files){
+    const out=[];
+    for(const f of files){
+        try{
+            out.push(await imageCompression(f,{
+                maxSizeMB:0.4,
+                maxWidthOrHeight:1600
             }));
-        } catch {
+        }catch{
             out.push(f);
         }
     }
     return out;
 }
 
-async function endWork() {
+async function endWork(){
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
-    let y = 10;
+    let y=10;
 
-    doc.text("Jobbkort 41", 10, y);
-    y += 10;
+    doc.text("Jobbkort 41 - Brann og innbruddsalarm",10,y);
+    y+=10;
 
-    doc.text("Kontrolliste", 10, y);
-    y += 10;
+    document.querySelectorAll(".task").forEach(c=>{
 
-    // HEADER
-    doc.setFont(undefined, "bold");
-    doc.text("STATUS", 10, y);
-    doc.text("OPPGAVE", 65, y);
-    doc.setFont(undefined, "normal");
-    y += 6;
+        const text=c.parentElement.innerText;
 
-    doc.line(10, y, 200, y);
-    y += 8;
+        const statusX=10;
+        const textX=65;
+        const maxWidth=125;
 
-    // FIXED COLUMN LAYOUT
-    document.querySelectorAll(".task").forEach(c => {
-
-        const text = c.parentElement.innerText;
-
-        const statusX = 10;
-        const textX = 65;      // 👈 FIX: langt nok til højre
-        const maxWidth = 125;   // 👈 ingen overlap
-
-        if (c.checked) {
+        if(c.checked){
             doc.setTextColor(0,150,0);
-            doc.text("OK", statusX, y);
-        } else {
+            doc.text("OK",statusX,y);
+        }else{
             doc.setTextColor(200,0,0);
-            doc.text("MANGLER", statusX, y);
+            doc.text("MANGLER",statusX,y);
         }
 
         doc.setTextColor(0,0,0);
 
-        const lines = doc.splitTextToSize(text, maxWidth);
-        doc.text(lines, textX, y);
+        const lines=doc.splitTextToSize(text,maxWidth);
+        doc.text(lines,textX,y);
 
-        y += lines.length * 6 + 4;
+        y+=lines.length*6+4;
     });
 
-    // NOTES
-    y += 10;
-    doc.text("Notater:", 10, y);
-    y += 6;
+    y+=10;
+    doc.text("Notater:",10,y);
+    y+=6;
+    doc.text(document.getElementById("notes").value||"-",10,y);
 
-    doc.text(document.getElementById("notes").value || "-", 10, y);
+    const pdf=doc.output("blob");
 
-    const pdfBlob = doc.output("blob");
-
-    const formData = new FormData();
-    formData.append("file", pdfBlob, "jobbkort41.pdf");
+    const formData=new FormData();
+    formData.append("file",pdf,"jobbkort.pdf");
 
     const compressed = await compress(selectedPhotos);
 
-    for (const p of compressed) {
-        formData.append("photos", p, p.name);
+    for(const p of compressed){
+        formData.append("photos",p,p.name);
     }
 
-    await fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev", {
-        method: "POST",
-        body: formData
-    }).catch(() => {});
+    await fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev",{
+        method:"POST",
+        body:formData
+    }).catch(()=>{});
 
-    window.location.href = "ferdig.html";
+    window.location.href="ferdig.html";
 }
 
 </script>
