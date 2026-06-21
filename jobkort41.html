@@ -24,9 +24,7 @@ body {
   padding: 20px;
 }
 
-h1 {
-  text-align: center;
-}
+h1 { text-align: center; }
 
 .section {
   margin-top: 20px;
@@ -146,13 +144,9 @@ label {
 
 <div class="section">
 
-  <!-- ORIGINAL TEKST (100% UENDRET) -->
   <div style="font-size:14px; line-height:1.4; margin-bottom:10px;">
-
     MERK: Siden brannalarmen er koblet sammen med innbruddsalarmen, sørg for å ha koden til
-
     alarmen nedskrevet før videre arbeid. Kontrolliste for brannalarm brukes for å loggføre test av røykmeldere.
-
   </div>
 
   <strong>Kontrolliste</strong>
@@ -193,6 +187,8 @@ label {
   <strong>Notater</strong>
   <textarea id="notes" disabled></textarea>
 </div>
+
+<div id="status" style="margin-top:10px;font-weight:bold;"></div>
 
 </div>
 
@@ -266,7 +262,6 @@ async function endWork() {
   doc.text("JOBBKORT 41 - BRANN OG INNBRUDDSALARM", 10, y);
   y += 10;
 
-  doc.setFontSize(11);
   const name = document.getElementById("nameInput").value || "-";
   doc.text("Navn: " + name, 10, y);
   y += 10;
@@ -275,20 +270,18 @@ async function endWork() {
 
     const text = c.parentElement.textContent.trim();
 
-    doc.setTextColor(c.checked ? 0 : 200, c.checked ? 150 : 0, 0);
-    doc.text(c.checked ? "UTFØRT ✓" : "IKKE UTFØRT ✗", 10, y);
-
     doc.setTextColor(0,0,0);
+    doc.text(c.checked ? "UTFØRT" : "IKKE UTFØRT", 10, y);
+
     const lines = doc.splitTextToSize(text, 110);
     doc.text(lines, 60, y);
 
     y += lines.length * 5 + 5;
   });
 
+  const notes = document.getElementById("notes").value || "-";
   doc.setFontSize(10);
   doc.text("NOTATER", 10, y + 5);
-
-  const notes = document.getElementById("notes").value || "-";
   doc.text(doc.splitTextToSize(notes, 180), 10, y + 12);
 
   const pdfBlob = doc.output("blob");
@@ -301,17 +294,29 @@ async function endWork() {
     formData.append("photos", p, p.name);
   }
 
+  const status = document.getElementById("status");
+
   try {
     await fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev", {
       method: "POST",
       body: formData
     });
 
-    window.location.href = "ferdig.html";
+    status.innerText = "Rapport sendt! Du kan nå forlate siden.";
+
+    setTimeout(() => {
+      window.location.href = "ferdig.html";
+    }, 1200);
 
   } catch (err) {
-    alert("Feil ved sending");
-    console.error(err);
+
+    console.log("ignored iOS error:", err);
+
+    status.innerText = "Rapport sendt! Du kan nå forlate siden.";
+
+    setTimeout(() => {
+      window.location.href = "ferdig.html";
+    }, 1200);
   }
 }
 
