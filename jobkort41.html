@@ -9,15 +9,60 @@
 <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
 
 <style>
-body { font-family: Arial; margin:0; background:#f4f6f8; }
-.container { max-width:900px; margin:auto; background:white; padding:20px; }
 
-h1 { text-align:center; }
+/* 🔥 GLOBAL IOS FIX */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial;
+  margin:0;
+  background:#f4f6f8;
+}
+
+.container {
+  max-width:900px;
+  margin:auto;
+  background:white;
+  padding:20px;
+}
+
+h1 {
+  text-align:center;
+}
 
 .section {
   margin-top:20px;
   padding-bottom:15px;
   border-bottom:1px solid #ddd;
+  width:100%;
+  padding-right:12px;
+}
+
+/* 🔥 IOS INPUT FIX (NAVN + TEXTAREA) */
+input[type="text"],
+textarea {
+  width:100%;
+  max-width:100%;
+  display:block;
+
+  padding:12px;
+  margin:0;
+
+  border:2px solid #ccc;
+  border-radius:6px;
+
+  font-size:16px;
+  background:#fff;
+  color:#111;
+
+  -webkit-appearance:none;
+  appearance:none;
+}
+
+textarea {
+  resize:vertical;
 }
 
 label {
@@ -26,29 +71,6 @@ label {
   line-height:1.4;
   max-width:100%;
   overflow-wrap:break-word;
-}
-
-input, textarea, button {
-  font-size:16px;
-}
-
-/* 📱 iPhone fix */
-#nameInput {
-  width:100%;
-  padding:12px;
-  border:2px solid #ccc;
-  border-radius:6px;
-  background:white;
-  color:black;
-  font-size:16px;
-  -webkit-appearance:none;
-  appearance:none;
-}
-
-textarea {
-  width:100%;
-  padding:10px;
-  resize:vertical;
 }
 
 button {
@@ -105,23 +127,21 @@ button {
   justify-content:center;
 }
 
-.fullscreen {
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.9);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-}
+/* 📱 INFO BOX (FIX FOR USYNLIG TEKST) */
+.notesInfo {
+  font-size:14px;
+  line-height:1.5;
+  color:#111;
+  margin:10px 0 12px 0;
+  padding:10px;
+  background:#f8f9fa;
+  border-left:4px solid #28a745;
+  border-radius:4px;
 
-.fullscreen img {
-  max-width:90%;
-  max-height:90%;
-  border-radius:10px;
+  display:block;
+  width:100%;
+  word-break:break-word;
+  -webkit-text-size-adjust:100%;
 }
 
 @keyframes pulse {
@@ -130,18 +150,6 @@ button {
   100% { transform:scale(1); box-shadow:0 0 0 0 rgba(40,167,69,0); }
 }
 
-/* 📱 text fix */
-.section div {
-  max-width:100%;
-  overflow-wrap:break-word;
-}
-
-@media (max-width:600px){
-  .section div {
-    font-size:13px;
-    line-height:1.4;
-  }
-}
 </style>
 </head>
 
@@ -171,9 +179,8 @@ button {
 
 <div class="section">
 
-  <div style="font-size:14px; line-height:1.4; margin-bottom:10px;">
-    MERK: Siden brannalarmen er koblet sammen med innbruddsalarmen, sørg for å ha koden til
-    alarmen nedskrevet før videre arbeid. Kontrolliste for brannalarm brukes for å loggføre test av røykmeldere.
+  <div style="font-size:14px; line-height:1.5; margin-bottom:10px;">
+    MERK: Siden brannalarmen er koblet sammen med innbruddsalarmen, sørg for å ha koden til alarmen nedskrevet før videre arbeid. Kontrolliste for brannalarm brukes for å loggføre test av røykmeldere.
   </div>
 
   <strong>Kontrolliste</strong>
@@ -211,13 +218,14 @@ button {
 
 <div class="section">
   <strong>Notater</strong>
+
+  <div class="notesInfo">
+    Noter nedenfor ting som du oppdaget og som du selv ikke kan eller har lov til å gjøre noe med. Gi deretter kortet til driftsutvalget.
+  </div>
+
   <textarea id="notes" disabled></textarea>
 </div>
 
-</div>
-
-<div id="fullscreen" class="fullscreen" style="display:none" onclick="closeFull()">
-  <img id="fullImg">
 </div>
 
 <script>
@@ -242,27 +250,17 @@ function renderPreview(){
     div.className="previewItem";
 
     div.innerHTML=`
-      <img src="${url}" onclick="openFull('${url}')">
-      <button class="removeBtn" onclick="removePhoto(event,${i})">×</button>
+      <img src="${url}">
+      <button class="removeBtn" onclick="removePhoto(${i})">×</button>
     `;
 
     grid.appendChild(div);
   });
 }
 
-function removePhoto(e,i){
-  e.stopPropagation();
+function removePhoto(i){
   selectedPhotos.splice(i,1);
   renderPreview();
-}
-
-function openFull(url){
-  document.getElementById("fullImg").src=url;
-  document.getElementById("fullscreen").style.display="flex";
-}
-
-function closeFull(){
-  document.getElementById("fullscreen").style.display="none";
 }
 
 function startWork(){
@@ -303,48 +301,40 @@ async function endWork(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  const pageWidth = 180;
-
   let y=12;
 
   doc.setFontSize(18);
   doc.text("JOBBKORT 41 - BRANN OG INNBRUDDSALARM",10,y);
   y+=10;
 
-  const name = (document.getElementById("nameInput").value || "").trim() || "-";
+  const name = document.getElementById("nameInput").value || "-";
   doc.setFontSize(10);
-  doc.text("Navn: " + name, 10, y, { maxWidth: pageWidth });
+  doc.text("Navn: " + name,10,y);
   y+=10;
 
   document.querySelectorAll(".task").forEach(c=>{
 
     const text = c.parentElement.textContent.trim();
-    const lines = doc.splitTextToSize(text, 110);
 
     if(c.checked){
       doc.setTextColor(0,150,0);
       doc.text("UTFØRT ✓",10,y);
-    }else{
+    } else {
       doc.setTextColor(200,0,0);
       doc.text("IKKE UTFØRT ✗",10,y);
     }
 
     doc.setTextColor(0,0,0);
-    doc.text(lines,60,y);
+    doc.text(doc.splitTextToSize(text,110),60,y);
 
-    y += lines.length * 5;
+    y+=15;
   });
 
-  y += 10;
-
-  const notes = (document.getElementById("notes").value || "").trim() || "-";
+  const notes = document.getElementById("notes").value || "-";
 
   doc.setFontSize(9);
   doc.text("NOTATER",10,y);
-
-  doc.setFontSize(8);
-  const noteLines = doc.splitTextToSize(notes, pageWidth);
-  doc.text(noteLines,10,y+8);
+  doc.text(doc.splitTextToSize(notes,180),10,y+8);
 
   const pdfBlob = doc.output("blob");
 
@@ -356,16 +346,16 @@ async function endWork(){
     formData.append("photos",p,p.name);
   }
 
-  await fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev",{
-    method:"POST",
-    body:formData
-  });
-
-  document.body.style.opacity = "0";
-
+  // 📱 IOS SAFE REDIRECT FIX
   setTimeout(()=>{
     window.location.href="ferdig.html";
-  },600);
+  },150);
+
+  fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev",{
+    method:"POST",
+    body:formData
+  }).catch(()=>{});
+
 }
 
 </script>
