@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Jobbkort 41 - Brann og innbruddsalarm</title>
+<title>Jobbkort 41</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
 
 <style>
 body {
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     margin: 0;
     background: #f4f6f8;
 }
@@ -34,7 +34,6 @@ h1 { text-align: center; }
 label {
     display: block;
     margin: 10px 0;
-    font-size: 15px;
     line-height: 1.4;
 }
 
@@ -57,15 +56,13 @@ button {
     padding: 16px;
     font-weight: bold;
     border: none;
-    cursor: pointer;
     border-radius: 8px;
-    margin-top: 10px;
+    cursor: pointer;
 }
 
 #startBtn {
     background: #28a745;
     color: white;
-    animation: pulse 1.5s infinite;
 }
 
 #finishBtn {
@@ -74,31 +71,42 @@ button {
     display: none;
 }
 
-.loading {
-    background: #777 !important;
-}
-
-.success {
-    background: #28a745 !important;
-}
-
-#status {
-    margin-top: 10px;
-    font-weight: bold;
-}
-
 #stepStatus {
-    font-weight: bold;
-    margin-top: 10px;
     padding: 8px;
     background: #eee;
     border-radius: 6px;
+    font-weight: bold;
 }
 
-@keyframes pulse {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0.6); }
-    70% { transform: scale(1.02); box-shadow: 0 0 0 15px rgba(40,167,69,0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0); }
+.previewGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.previewItem {
+    position: relative;
+}
+
+.previewItem img {
+    width: 100%;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.removeBtn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
 }
 </style>
 </head>
@@ -107,12 +115,12 @@ button {
 
 <div class="container">
 
-<h1>JOBBKORT 41 - Brann og innbruddsalarm</h1>
+<h1>JOBBKORT 41</h1>
 
 <div id="stepStatus">1. Ikke startet</div>
 
 <div class="section">
-    <strong>Tid brukt på jobb</strong>
+    <strong>Tid brukt</strong>
     <input type="text" id="timeInput" disabled>
 </div>
 
@@ -121,7 +129,7 @@ button {
 </div>
 
 <div class="section">
-    <button id="finishBtn" onclick="endWork()">Ferdigmeld og innsend</button>
+    <button id="finishBtn" onclick="endWork()">Ferdigmeld og send</button>
     <div id="status"></div>
 </div>
 
@@ -129,23 +137,23 @@ button {
     <strong>Kontrolliste</strong>
 
     <label><input type="checkbox" class="task" disabled>
-        Test røykmeldere med egnet testgass og kontroller at brannalarmen aktiveres korrekt.
+        Test røykmeldere med testgass og verifiser alarmfunksjon.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Sørg for korrekt dokumentasjon i MNT-skjema av vedlikeholdskoordinator.
+        Dokumenter kontroll i MNT-system korrekt.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Kontroller at brannalarmen er resatt og tilbake i normal drift etter testing.
+        Reset brannalarm og kontroller normal drift.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Test innbruddsalarm ved å utløse bevegelsessensor og verifiser respons.
+        Test innbruddsalarm via bevegelsessensor.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Bekreft at innbruddsalarm er tilbake i normal drift etter test.
+        Bekreft system tilbake i normal status.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
@@ -156,6 +164,10 @@ button {
 <div class="section">
     <strong>Bilder</strong>
     <input type="file" id="photos" accept="image/*" multiple disabled>
+
+    <button onclick="resetPhotos()" type="button">🧹 Fjern bilder</button>
+
+    <div class="previewGrid" id="preview"></div>
 </div>
 
 <div class="section">
@@ -169,38 +181,57 @@ button {
 
 let startTime = null;
 let timer = null;
+let selectedPhotos = [];
 
-function setStep(step) {
-    const map = {
-        1: "1. Ikke startet",
-        2: "2. Arbeider",
-        3: "3. Sender",
-        4: "4. Ferdig"
-    };
-    document.getElementById("stepStatus").innerText = map[step];
+document.getElementById("photos").addEventListener("change", (e) => {
+    selectedPhotos = selectedPhotos.concat(Array.from(e.target.files));
+    e.target.value = "";
+    renderPreview();
+});
+
+function renderPreview() {
+    const grid = document.getElementById("preview");
+    grid.innerHTML = "";
+
+    selectedPhotos.forEach((file, i) => {
+        const url = URL.createObjectURL(file);
+
+        const div = document.createElement("div");
+        div.className = "previewItem";
+
+        div.innerHTML = `
+            <img src="${url}">
+            <button class="removeBtn" onclick="removePhoto(${i})">×</button>
+        `;
+
+        grid.appendChild(div);
+    });
 }
 
-function setLocked(state) {
-    document.querySelectorAll(".task").forEach(c => c.disabled = !state);
-    document.getElementById("notes").disabled = !state;
-    document.getElementById("photos").disabled = !state;
+function removePhoto(i) {
+    selectedPhotos.splice(i, 1);
+    renderPreview();
+}
+
+function resetPhotos() {
+    selectedPhotos = [];
+    renderPreview();
 }
 
 function startWork() {
     startTime = Date.now();
-    setLocked(true);
 
     document.getElementById("startBtn").style.display = "none";
     document.getElementById("finishBtn").style.display = "block";
 
-    setStep(2);
+    document.getElementById("stepStatus").innerText = "2. Arbeider";
 
-    timer = setInterval(() => {
-        let diff = Date.now() - startTime;
+    setInterval(() => {
+        let d = Date.now() - startTime;
 
-        let h = Math.floor(diff / 3600000);
-        let m = Math.floor((diff % 3600000) / 60000);
-        let s = Math.floor((diff % 60000) / 1000);
+        let h = Math.floor(d / 3600000);
+        let m = Math.floor(d % 3600000 / 60000);
+        let s = Math.floor(d % 60000 / 1000);
 
         document.getElementById("timeInput").value =
             String(h).padStart(2,'0') + ":" +
@@ -226,111 +257,76 @@ async function compress(files) {
 
 async function endWork() {
 
-    if (!startTime) {
-        alert("Start arbeidet først");
-        return;
-    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-    const btn = document.getElementById("finishBtn");
-    const status = document.getElementById("status");
+    let y = 10;
 
-    btn.disabled = true;
-    btn.classList.add("loading");
+    doc.text("Jobbkort 41", 10, y);
+    y += 10;
 
-    setStep(3);
-    status.innerText = "Sender rapport...";
+    doc.text("Kontrolliste", 10, y);
+    y += 10;
 
-    try {
+    // HEADER
+    doc.setFont(undefined, "bold");
+    doc.text("STATUS", 10, y);
+    doc.text("OPPGAVE", 65, y);
+    doc.setFont(undefined, "normal");
+    y += 6;
 
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+    doc.line(10, y, 200, y);
+    y += 8;
 
-        let time = document.getElementById("timeInput").value;
-        let notes = document.getElementById("notes").value;
-        let checks = document.querySelectorAll(".task");
+    // FIXED COLUMN LAYOUT
+    document.querySelectorAll(".task").forEach(c => {
 
-        let y = 10;
+        const text = c.parentElement.innerText;
 
-        // HEADER
-        doc.setFontSize(16);
-        doc.text("Jobbkort 41 - Brann og innbruddsalarm", 10, y);
-        y += 12;
+        const statusX = 10;
+        const textX = 65;      // 👈 FIX: langt nok til højre
+        const maxWidth = 125;   // 👈 ingen overlap
 
-        doc.setFontSize(11);
-        doc.text("Tid: " + time, 10, y);
-        y += 10;
-
-        doc.setFontSize(12);
-        doc.text("Kontrolliste:", 10, y);
-        y += 10;
-
-        // COLUMN HEADERS
-        doc.setFont(undefined, "bold");
-        doc.text("STATUS", 10, y);
-        doc.text("OPPGAVE", 40, y);
-        doc.setFont(undefined, "normal");
-        y += 6;
-
-        // LINE
-        doc.line(10, y, 200, y);
-        y += 6;
-
-        // ROWS
-        checks.forEach(c => {
-
-            let text = c.parentElement.innerText;
-
-            if (c.checked) {
-                doc.setTextColor(0,150,0);
-                doc.text("✔ OK", 10, y);
-            } else {
-                doc.setTextColor(220,0,0);
-                doc.text("✘ MANGLER", 10, y);
-            }
-
-            doc.setTextColor(0,0,0);
-
-            const lines = doc.splitTextToSize(text, 150);
-            doc.text(lines, 40, y);
-
-            y += lines.length * 6 + 4;
-        });
-
-        y += 5;
-        doc.text("Notater:", 10, y);
-        y += 8;
-
-        const noteLines = doc.splitTextToSize(notes || "-", 180);
-        doc.text(noteLines, 10, y);
-
-        const pdfBlob = doc.output("blob");
-
-        const formData = new FormData();
-        formData.append("file", pdfBlob, "jobbkort41.pdf");
-
-        const photos = document.getElementById("photos").files;
-        const compressed = await compress(photos);
-
-        for (const p of compressed) {
-            formData.append("photos", p, p.name);
+        if (c.checked) {
+            doc.setTextColor(0,150,0);
+            doc.text("OK", statusX, y);
+        } else {
+            doc.setTextColor(200,0,0);
+            doc.text("MANGLER", statusX, y);
         }
 
-        await fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev", {
-            method: "POST",
-            body: formData
-        }).catch(() => {});
+        doc.setTextColor(0,0,0);
 
-        window.location.href = "ferdig.html";
+        const lines = doc.splitTextToSize(text, maxWidth);
+        doc.text(lines, textX, y);
 
-    } catch (err) {
-        console.error(err);
+        y += lines.length * 6 + 4;
+    });
 
-        btn.disabled = false;
-        btn.classList.remove("loading");
+    // NOTES
+    y += 10;
+    doc.text("Notater:", 10, y);
+    y += 6;
 
-        setStep(2);
-        status.innerText = "Feil ved sending";
+    doc.text(document.getElementById("notes").value || "-", 10, y);
+
+    const pdfBlob = doc.output("blob");
+
+    const formData = new FormData();
+    formData.append("file", pdfBlob, "jobbkort41.pdf");
+
+    const compressed = await compress(selectedPhotos);
+
+    for (const p of compressed) {
+        formData.append("photos", p, p.name);
     }
+
+    await fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev", {
+        method: "POST",
+        body: formData
+    }).catch(() => {});
+
+    window.location.href = "ferdig.html";
 }
 
 </script>
