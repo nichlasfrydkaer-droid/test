@@ -104,7 +104,6 @@ button {
 
 <div class="section">
 
-  <!-- MERK (KORREKT VERSION) -->
   <div style="margin-bottom:15px; font-size:14px; line-height:1.4;">
     MERK: Siden brannalarmen er koblet sammen med innbruddsalarmen, sørg for å ha koden til
     alarmen nedskrevet før videre arbeid. Kontrolliste for brannalarm brukes for å loggføre test av røykmeldere.
@@ -189,7 +188,6 @@ function removePhoto(i){
 }
 
 function startWork(){
-
   startTime=Date.now();
 
   document.querySelectorAll(".task").forEach(e=>e.disabled=false);
@@ -245,18 +243,24 @@ async function endWork(){
     const text = c.parentElement.childNodes[1].textContent.trim();
 
     const statusX=10;
-    const textX=65;
-    const maxWidth=125;
+    const textX=75;
+    const maxWidth=115;
+
+    doc.setFontSize(6);
 
     if(c.checked){
       doc.setTextColor(0,140,0);
-      doc.text("UTFØRT ✓",statusX,y);
+      doc.setFont(undefined,"bold");
+      doc.text("UTFØRT",statusX,y);
     }else{
       doc.setTextColor(200,0,0);
-      doc.text("IKKE UTFØRT ✗",statusX,y);
+      doc.setFont(undefined,"bold");
+      doc.text("IKKE UTFØRT",statusX,y);
     }
 
     doc.setTextColor(0,0,0);
+    doc.setFont(undefined,"normal");
+    doc.setFontSize(7);
 
     const lines=doc.splitTextToSize(text,maxWidth);
     doc.text(lines,textX,y);
@@ -267,18 +271,19 @@ async function endWork(){
   y+=10;
 
   doc.setFont(undefined,"bold");
+  doc.setFontSize(7);
   doc.text("NOTATER",10,y);
   y+=8;
 
   doc.setFont(undefined,"normal");
-  doc.setFontSize(9);
+  doc.setFontSize(7);
 
   const notes=document.getElementById("notes").value||"-";
   doc.text(doc.splitTextToSize(notes,180),10,y);
 
-  y+=20;
+  y+=15;
 
-  doc.setFont(undefined,"bold");
+  doc.setFontSize(8);
   doc.text(`Vedlagte bilder: ${selectedPhotos.length}`,10,y);
 
   const pdfBlob=doc.output("blob");
