@@ -24,13 +24,15 @@ label {
   display:block;
   margin:10px 0;
   line-height:1.4;
+  max-width:100%;
+  overflow-wrap:break-word;
 }
 
 input, textarea, button {
   font-size:16px;
 }
 
-/* ✅ FIX: iPhone visibility for name input */
+/* 📱 iPhone fix */
 #nameInput {
   width:100%;
   padding:12px;
@@ -43,14 +45,10 @@ input, textarea, button {
   appearance:none;
 }
 
-input[type="checkbox"] {
-  transform:scale(1.2);
-  margin-right:8px;
-}
-
 textarea {
   width:100%;
   padding:10px;
+  resize:vertical;
 }
 
 button {
@@ -62,8 +60,17 @@ button {
   cursor:pointer;
 }
 
-#startBtn { background:#28a745; color:white; animation:pulse 1.5s infinite; }
-#finishBtn { background:red; color:white; display:none; }
+#startBtn {
+  background:#28a745;
+  color:white;
+  animation:pulse 1.5s infinite;
+}
+
+#finishBtn {
+  background:red;
+  color:white;
+  display:none;
+}
 
 .previewGrid {
   display:grid;
@@ -74,7 +81,6 @@ button {
 
 .previewItem {
   position:relative;
-  cursor:grab;
 }
 
 .previewItem img {
@@ -97,7 +103,6 @@ button {
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:14px;
 }
 
 .fullscreen {
@@ -119,11 +124,23 @@ button {
   border-radius:10px;
 }
 
-/* pulse animation */
 @keyframes pulse {
-  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0.6); }
-  70% { transform: scale(1.03); box-shadow: 0 0 0 14px rgba(40,167,69,0); }
-  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0); }
+  0% { transform:scale(1); box-shadow:0 0 0 0 rgba(40,167,69,0.6); }
+  70% { transform:scale(1.03); box-shadow:0 0 0 14px rgba(40,167,69,0); }
+  100% { transform:scale(1); box-shadow:0 0 0 0 rgba(40,167,69,0); }
+}
+
+/* 📱 text fix */
+.section div {
+  max-width:100%;
+  overflow-wrap:break-word;
+}
+
+@media (max-width:600px){
+  .section div {
+    font-size:13px;
+    line-height:1.4;
+  }
 }
 </style>
 </head>
@@ -286,6 +303,8 @@ async function endWork(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
+  const pageWidth = 180;
+
   let y=12;
 
   doc.setFontSize(18);
@@ -294,34 +313,45 @@ async function endWork(){
 
   const name = (document.getElementById("nameInput").value || "").trim() || "-";
   doc.setFontSize(10);
-  doc.text("Navn: " + name, 10, y);
+  doc.text("Navn: " + name, 10, y, { maxWidth: pageWidth });
   y+=10;
 
   document.querySelectorAll(".task").forEach(c=>{
-    const text=c.parentElement.textContent.trim();
 
-    doc.setFontSize(7);
-    doc.text(c.checked ? "UTFØRT" : "IKKE UTFØRT", 10, y);
+    const text = c.parentElement.textContent.trim();
+    const lines = doc.splitTextToSize(text, 110);
 
-    const lines=doc.splitTextToSize(text,120);
+    if(c.checked){
+      doc.setTextColor(0,150,0);
+      doc.text("UTFØRT ✓",10,y);
+    }else{
+      doc.setTextColor(200,0,0);
+      doc.text("IKKE UTFØRT ✗",10,y);
+    }
+
+    doc.setTextColor(0,0,0);
     doc.text(lines,60,y);
 
-    y+=lines.length*5;
+    y += lines.length * 5;
   });
+
+  y += 10;
 
   const notes = (document.getElementById("notes").value || "").trim() || "-";
 
   doc.setFontSize(9);
-  doc.text("NOTATER",10,y+10);
+  doc.text("NOTATER",10,y);
+
   doc.setFontSize(8);
-  doc.text(doc.splitTextToSize(notes,180),10,y+18);
+  const noteLines = doc.splitTextToSize(notes, pageWidth);
+  doc.text(noteLines,10,y+8);
 
-  const pdfBlob=doc.output("blob");
+  const pdfBlob = doc.output("blob");
 
-  const formData=new FormData();
+  const formData = new FormData();
   formData.append("file",pdfBlob,"jobbkort.pdf");
 
-  const compressed=await compress(selectedPhotos);
+  const compressed = await compress(selectedPhotos);
   for(const p of compressed){
     formData.append("photos",p,p.name);
   }
@@ -331,10 +361,11 @@ async function endWork(){
     body:formData
   });
 
-  /* 📱 iPhone SAFE redirect */
-  setTimeout(() => {
-    window.location.href = "ferdig.html";
-  }, 800);
+  document.body.style.opacity = "0";
+
+  setTimeout(()=>{
+    window.location.href="ferdig.html";
+  },600);
 }
 
 </script>
