@@ -63,21 +63,18 @@ button {
     margin-top: 10px;
 }
 
-/* START BUTTON */
 #startBtn {
     background: #28a745;
     color: white;
     animation: pulse 1.5s infinite;
 }
 
-/* FINISH BUTTON */
 #finishBtn {
     background: red;
     color: white;
     display: none;
 }
 
-/* PULSE EFFECT */
 @keyframes pulse {
     0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0.6); }
     70% { transform: scale(1.02); box-shadow: 0 0 0 15px rgba(40,167,69,0); }
@@ -106,11 +103,11 @@ button {
     <strong>Kontrolliste</strong>
 
     <label><input type="checkbox" class="task" disabled>
-        Test røykmeldere med egnet testgass og kontroller at brannalarmen aktiveres. Test minst 1 forskjellig detektor hver gang. Loggfør hvilken detektor som ble testet i egen kontrolliste.
+        Test røykmeldere med egnet testgass og kontroller at brannalarmen aktiveres. Test minst 1 forskjellig detektor hver gang. Loggfør hvilken detektor som ble testet.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Sørg for at kontrollen blir dokumentert av vedlikeholdskoordinatoren i MNT-skjema. Hvis noe ikke fungerer så er det viktig at dette blir registrert og at man gjør tiltak for å rette feilen så snart som mulig.
+        Sørg for at kontrollen dokumenteres korrekt i MNT-skjema.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
@@ -118,20 +115,20 @@ button {
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Aktiver innbruddsalarmen, test funksjonen ved å utløse bevegelsessensor.
+        Test innbruddsalarmen ved å utløse bevegelsessensor.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Sjekk om innbruddsalarmen er satt i drift igjen ved å taste alarmkoden.
+        Sjekk om innbruddsalarmen er aktiv igjen.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Sjekk datoen for siste batteriskift. Batteriet må maks være 3 år gammelt. (Noter dato på batteriet når det er nytt)
+        Sjekk batteriskift (maks 3 år gammelt).
     </label>
 </div>
 
 <div class="section">
-    <strong>Bilder (flere tillatt)</strong>
+    <strong>Bilder (flere kan velges)</strong>
     <input type="file" id="photos" accept="image/*" multiple disabled>
 </div>
 
@@ -243,13 +240,13 @@ async function endWork() {
     const photos = document.getElementById("photos").files;
 
     for (let i = 0; i < photos.length; i++) {
-        formData.append("photos[]", photos[i]);
+        formData.append("photos", photos[i]); // ✔ STABIL VERSION
     }
 
     fetch("https://YOUR-WORKER-URL.workers.dev", {
         method: "POST",
         body: formData
-    }).catch(err => console.log("Upload error:", err));
+    });
 
     window.location.href = "ferdig.html";
 }
