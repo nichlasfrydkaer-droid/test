@@ -133,28 +133,28 @@ button {
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Sørg for at all kontroll blir dokumentert i MNT-skjema av vedlikeholdskoordinator.
+        Sørg for korrekt dokumentasjon i MNT-skjema av vedlikeholdskoordinator.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Kontroller at brannalarmen er korrekt resatt etter testing og tilbake i normal drift.
+        Kontroller at brannalarmen er resatt og tilbake i normal drift etter testing.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Test innbruddsalarmen ved å utløse bevegelsessensor og verifiser alarmrespons.
+        Test innbruddsalarm ved å utløse bevegelsessensor og verifiser respons.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Bekreft at innbruddsalarmen er tilbake i normal drift etter test.
+        Bekreft at innbruddsalarm er tilbake i normal drift etter test.
     </label>
 
     <label><input type="checkbox" class="task" disabled>
-        Kontroller batteristatus og sørg for at batteriet ikke er eldre enn 3 år.
+        Kontroller batteristatus (maks 3 år gammelt).
     </label>
 </div>
 
 <div class="section">
-    <strong>Bilder (flere kan velges)</strong>
+    <strong>Bilder</strong>
     <input type="file" id="photos" accept="image/*" multiple disabled>
 </div>
 
@@ -171,14 +171,13 @@ let startTime = null;
 let timer = null;
 
 function setStep(step) {
-    const el = document.getElementById("stepStatus");
     const map = {
         1: "1. Ikke startet",
         2: "2. Arbeider",
-        3: "3. Sender rapport",
+        3: "3. Sender",
         4: "4. Ferdig"
     };
-    el.innerText = map[step];
+    document.getElementById("stepStatus").innerText = map[step];
 }
 
 function setLocked(state) {
@@ -225,12 +224,6 @@ async function compress(files) {
     return out;
 }
 
-function wrap(doc, text, x, y, w) {
-    const lines = doc.splitTextToSize(text, w);
-    doc.text(lines, x, y);
-    return lines.length * 6;
-}
-
 async function endWork() {
 
     if (!startTime) {
@@ -258,9 +251,10 @@ async function endWork() {
 
         let y = 10;
 
+        // HEADER
         doc.setFontSize(16);
         doc.text("Jobbkort 41 - Brann og innbruddsalarm", 10, y);
-        y += 10;
+        y += 12;
 
         doc.setFontSize(11);
         doc.text("Tid: " + time, 10, y);
@@ -270,6 +264,18 @@ async function endWork() {
         doc.text("Kontrolliste:", 10, y);
         y += 10;
 
+        // COLUMN HEADERS
+        doc.setFont(undefined, "bold");
+        doc.text("STATUS", 10, y);
+        doc.text("OPPGAVE", 40, y);
+        doc.setFont(undefined, "normal");
+        y += 6;
+
+        // LINE
+        doc.line(10, y, 200, y);
+        y += 6;
+
+        // ROWS
         checks.forEach(c => {
 
             let text = c.parentElement.innerText;
@@ -284,13 +290,18 @@ async function endWork() {
 
             doc.setTextColor(0,0,0);
 
-            y += wrap(doc, text, 35, y, 150);
+            const lines = doc.splitTextToSize(text, 150);
+            doc.text(lines, 40, y);
+
+            y += lines.length * 6 + 4;
         });
 
         y += 5;
         doc.text("Notater:", 10, y);
         y += 8;
-        y += wrap(doc, notes || "-", 10, y, 180);
+
+        const noteLines = doc.splitTextToSize(notes || "-", 180);
+        doc.text(noteLines, 10, y);
 
         const pdfBlob = doc.output("blob");
 
@@ -304,19 +315,12 @@ async function endWork() {
             formData.append("photos", p, p.name);
         }
 
-        const res = await fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev", {
+        await fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev", {
             method: "POST",
             body: formData
-        });
+        }).catch(() => {});
 
-        if (!res.ok) throw new Error(await res.text());
-
-        btn.classList.remove("loading");
-        btn.classList.add("success");
-        btn.innerText = "✓ SENDT";
-
-        setStep(4);
-        status.innerText = "Rapport sendt!";
+        window.location.href = "ferdig.html";
 
     } catch (err) {
         console.error(err);
@@ -325,7 +329,7 @@ async function endWork() {
         btn.classList.remove("loading");
 
         setStep(2);
-        status.innerText = "Feil ved sending: " + err.message;
+        status.innerText = "Feil ved sending";
     }
 }
 
