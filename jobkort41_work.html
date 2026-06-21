@@ -94,6 +94,12 @@ button {
   <input type="text" id="timeInput" disabled>
 </div>
 
+<!-- ✅ NYT NAVN-FELT -->
+<div class="section">
+  <strong>Navn</strong>
+  <input type="text" id="nameInput" placeholder="Skriv navn..." disabled>
+</div>
+
 <div class="section">
   <button id="startBtn" onclick="startWork()">Start arbeidet</button>
 </div>
@@ -193,6 +199,7 @@ function startWork(){
   document.querySelectorAll(".task").forEach(e=>e.disabled=false);
   document.getElementById("notes").disabled=false;
   document.getElementById("photos").disabled=false;
+  document.getElementById("nameInput").disabled=false; // ✅ NY
 
   document.getElementById("startBtn").style.display="none";
   document.getElementById("finishBtn").style.display="block";
@@ -237,6 +244,12 @@ async function endWork(){
   doc.text("JOBBKORT 41 - BRANN OG INNBRUDDSALARM",10,y);
 
   y+=10;
+
+  // ✅ NAVN IN PDF
+  let name=document.getElementById("nameInput").value||"-";
+  doc.setFontSize(9);
+  doc.text("Navn: "+name,10,y);
+  y+=8;
 
   document.querySelectorAll(".task").forEach(c=>{
 
