@@ -47,14 +47,8 @@ input[type="text"], textarea {
   padding: 10px;
   background: #f8f9fa;
   border-left: 4px solid #28a745;
-
-  display: block;
   width: 100%;
-  max-width: 100%;
-
-  white-space: normal;
   word-break: break-word;
-  overflow-wrap: break-word;
 }
 
 button {
@@ -71,7 +65,6 @@ button {
   color: white;
 }
 
-/* FIX 3: pulse force for iOS + Mac */
 .pulse {
   animation: pulse 1.5s infinite !important;
   -webkit-animation: pulse 1.5s infinite !important;
@@ -155,7 +148,6 @@ label {
   <button id="finishBtn" onclick="endWork()">Ferdigmeld og send</button>
 </div>
 
-<!-- ✅ FIX 1: MERK restored -->
 <div class="section">
 
   <div class="notesInfo">
@@ -191,7 +183,6 @@ alarmen nedskrevet før videre arbeid. Kontrolliste for brannalarm brukes for å
 
 </div>
 
-<!-- ✅ FIX 2: notat-info moved correctly -->
 <div class="section">
 
   <strong>Notater</strong>
@@ -245,7 +236,6 @@ function startWork() {
   document.getElementById("notes").disabled = false;
   document.getElementById("photos").disabled = false;
 
-  // ✅ FIX 3: pulse reset + force repaint
   const btn = document.getElementById("startBtn");
   btn.classList.remove("pulse");
   void btn.offsetWidth;
@@ -315,17 +305,22 @@ async function endWork() {
   doc.text("Navn: " + name,10,y);
   y += 10;
 
+  // 🔴🟢 ONLY FIXED PART (colors)
   document.querySelectorAll(".task").forEach(c => {
 
     const text = c.parentElement.textContent.trim();
+    const lines = doc.splitTextToSize(text,110);
 
-    doc.setFontSize(10);
+    if (c.checked) {
+      doc.setTextColor(0,160,0); // GREEN
+      doc.text("UTFØRT", 10, y);
+    } else {
+      doc.setTextColor(200,0,0); // RED
+      doc.text("IKKE UTFØRT", 10, y);
+    }
 
     doc.setTextColor(0,0,0);
-    doc.text(c.checked ? "UTFØRT" : "IKKE UTFØRT",10,y);
-
-    const lines = doc.splitTextToSize(text,110);
-    doc.text(lines,55,y);
+    doc.text(lines, 55, y);
 
     y += (lines.length * 6) + 6;
   });
