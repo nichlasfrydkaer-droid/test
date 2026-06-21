@@ -9,21 +9,47 @@
 <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
 
 <style>
-body { font-family: Arial; margin: 0; background: #f4f6f8; }
-.container { max-width: 900px; margin: auto; background: white; padding: 20px; }
-h1 { text-align: center; }
-
-.section { margin-top: 20px; padding-bottom: 15px; border-bottom: 1px solid #ddd; }
-
-label { display: block; margin: 10px 0; }
-
-input[type="checkbox"] { transform: scale(1.2); margin-right: 8px; }
-
-textarea, input[type="text"] {
-    width: 100%; padding: 10px;
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f4f6f8;
 }
 
-input[type="file"] { margin-top: 10px; }
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+}
+
+h1 { text-align: center; }
+
+.section {
+    margin-top: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+label {
+    display: block;
+    margin: 10px 0;
+    font-size: 15px;
+}
+
+input[type="checkbox"] {
+    transform: scale(1.2);
+    margin-right: 8px;
+}
+
+textarea, input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+}
+
+input[type="file"] {
+    margin-top: 10px;
+}
 
 button {
     width: 100%;
@@ -31,22 +57,36 @@ button {
     font-size: 18px;
     font-weight: bold;
     border: none;
-    border-radius: 8px;
     cursor: pointer;
+    border-radius: 8px;
+    margin-top: 10px;
 }
 
-#startBtn { background: #28a745; color: white; animation: pulse 1.5s infinite; }
-#finishBtn { background: red; color: white; }
+#startBtn {
+    background: #28a745;
+    color: white;
+    animation: pulse 1.5s infinite;
+}
 
-.loading { background: #999 !important; }
-.success { background: #28a745 !important; }
+#finishBtn {
+    background: red;
+    color: white;
+    display: none;
+}
 
-#status { margin-top: 10px; font-weight: bold; }
+.loading {
+    background: #888 !important;
+    cursor: not-allowed;
+}
+
+.success {
+    background: #28a745 !important;
+}
 
 @keyframes pulse {
-    0% { transform: scale(1); }
-    70% { transform: scale(1.03); }
-    100% { transform: scale(1); }
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0.6); }
+    70% { transform: scale(1.02); box-shadow: 0 0 0 15px rgba(40,167,69,0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0); }
 }
 </style>
 </head>
@@ -96,8 +136,8 @@ button {
 
 <script>
 
-let startTime;
-let timer;
+let startTime = null;
+let timer = null;
 
 function setLocked(state) {
     document.querySelectorAll(".task").forEach(c => c.disabled = !state);
@@ -107,9 +147,11 @@ function setLocked(state) {
 
 function startWork() {
     startTime = Date.now();
+
     setLocked(true);
 
     document.getElementById("startBtn").style.display = "none";
+    document.getElementById("finishBtn").style.display = "block";
 
     timer = setInterval(() => {
         let diff = Date.now() - startTime;
@@ -125,32 +167,44 @@ function startWork() {
     }, 1000);
 }
 
-async function compress(files) {
-    const out = [];
+async function compressFiles(files) {
+    const result = [];
 
-    for (const f of files) {
+    for (const file of files) {
         try {
-            const c = await imageCompression(f, {
+            const compressed = await imageCompression(file, {
                 maxSizeMB: 0.4,
-                maxWidthOrHeight: 1600
+                maxWidthOrHeight: 1600,
+                useWebWorker: true
             });
-            out.push(c);
-        } catch (e) {
-            out.push(f);
+            result.push(compressed);
+        } catch {
+            result.push(file);
         }
     }
 
-    return out;
+    return result;
+}
+
+function wrapText(doc, text, x, y, maxWidth) {
+    const lines = doc.splitTextToSize(text, maxWidth);
+    doc.text(lines, x, y);
+    return lines.length * 6;
 }
 
 async function endWork() {
+
+    if (!startTime) {
+        alert("Du må starte arbeidet først");
+        return;
+    }
 
     const btn = document.getElementById("finishBtn");
     const status = document.getElementById("status");
 
     btn.disabled = true;
     btn.classList.add("loading");
-    status.innerText = "Sender...";
+    status.innerText = "Sender rapport...";
 
     try {
 
@@ -163,10 +217,16 @@ async function endWork() {
 
         let y = 10;
 
+        doc.setFontSize(16);
         doc.text("Jobbkort 41 - Brann og innbruddsalarm", 10, y);
         y += 10;
 
+        doc.setFontSize(11);
         doc.text("Tid: " + time, 10, y);
+        y += 10;
+
+        doc.setFontSize(12);
+        doc.text("Kontrolliste:", 10, y);
         y += 10;
 
         checks.forEach(c => {
@@ -182,14 +242,14 @@ async function endWork() {
             }
 
             doc.setTextColor(0,0,0);
-            let lines = doc.splitTextToSize(text, 150);
-            doc.text(lines, 35, y);
 
-            y += lines.length * 6 + 3;
+            y += wrapText(doc, text, 35, y, 150);
         });
 
-        doc.text("Notater:", 10, y + 10);
-        doc.text(notes || "-", 10, y + 20);
+        y += 5;
+        doc.text("Notater:", 10, y);
+        y += 8;
+        y += wrapText(doc, notes || "-", 10, y, 180);
 
         const pdfBlob = doc.output("blob");
 
@@ -197,7 +257,7 @@ async function endWork() {
         formData.append("file", pdfBlob, "jobbkort41.pdf");
 
         const photos = document.getElementById("photos").files;
-        const compressed = await compress(photos);
+        const compressed = await compressFiles(photos);
 
         for (const p of compressed) {
             formData.append("photos", p, p.name);
@@ -210,26 +270,19 @@ async function endWork() {
 
         const text = await res.text();
 
-        console.log("STATUS:", res.status);
-        console.log("BODY:", text);
-
-        if (!res.ok) {
-            throw new Error(text);
-        }
+        if (!res.ok) throw new Error(text);
 
         btn.classList.remove("loading");
         btn.classList.add("success");
         btn.innerText = "✓ SENDT";
-        status.innerText = "Rapport sendt!";
+        status.innerText = "Rapport sendt korrekt!";
 
     } catch (err) {
-
         console.error(err);
 
         btn.disabled = false;
         btn.classList.remove("loading");
-        status.innerText = "Feil: " + err.message;
-
+        status.innerText = "Feil ved sending: " + err.message;
     }
 }
 
