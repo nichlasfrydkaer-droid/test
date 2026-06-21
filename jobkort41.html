@@ -3,128 +3,51 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Jobbkort 41</title>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
+<title>Jobbkort 41 - Brann og innbruddsalarm</title>
 
 <style>
-* { box-sizing: border-box; }
-
 body {
-  font-family: Arial;
-  margin: 0;
-  background: #f4f6f8;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f4f6f8;
 }
 
 .container {
-  max-width: 900px;
-  margin: auto;
-  background: white;
-  padding: 20px;
+    max-width: 700px;
+    margin: auto;
+    padding: 20px;
 }
 
-h1 { text-align: center; }
-
-.section {
-  margin-top: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #ddd;
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
 }
 
-input[type="text"], textarea {
-  width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  border: 2px solid #ccc;
-  border-radius: 6px;
-}
-
-/* 🔧 FIX 1: iOS tekst visibility */
-.notesInfo {
-  font-size: 14px;
-  line-height: 1.4;
-  margin-bottom: 10px;
-  padding: 10px;
-  background: #f8f9fa;
-  border-left: 4px solid #28a745;
-
-  display: block;
-  width: 100%;
-
-  white-space: normal;
-  word-break: break-word;
-  overflow-wrap: break-word;
+.button-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 button {
-  width: 100%;
-  padding: 16px;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+    padding: 18px;
+    font-size: 18px;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #1f6feb;
+    color: white;
 }
 
-#startBtn {
-  background: #28a745;
-  color: white;
+button:hover {
+    background: #0f4fc2;
 }
 
-.pulse {
-  animation: pulse 1.5s infinite !important;
-}
-
-#finishBtn {
-  background: red;
-  color: white;
-  display: none;
-}
-
-label {
-  display: block;
-  margin: 10px 0;
-  line-height: 1.4;
-}
-
-.previewGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.previewItem {
-  position: relative;
-}
-
-.previewItem img {
-  width: 100%;
-  height: 90px;
-  object-fit: cover;
-  border-radius: 6px;
-}
-
-.removeBtn {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: red;
-  color: white;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0.6); }
-  70% { transform: scale(1.03); box-shadow: 0 0 0 12px rgba(40,167,69,0); }
-  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0); }
+.disabled {
+    background: #c7c7c7;
+    color: #666;
+    cursor: not-allowed;
 }
 </style>
 </head>
@@ -133,247 +56,36 @@ label {
 
 <div class="container">
 
-<h1>JOBBKORT 41 - BRANN OG INNBRUDDSALARM</h1>
+<h1>JOBBKORT 41 - Brann og innbruddsalarm</h1>
 
-<div class="section">
-  <strong>Tid brukt</strong>
-  <input type="text" id="timeInput" disabled>
-</div>
+<div class="button-grid">
 
-<div class="section">
-  <strong>Navn</strong>
-  <input type="text" id="nameInput" disabled>
-</div>
+    <!-- ✅ RETTET HER -->
+    <button onclick="openWork()">
+        Åpne jobbkort
+    </button>
 
-<div class="section">
-  <button id="startBtn" onclick="startWork()">Start arbeidet</button>
-</div>
+    <button class="disabled" disabled>
+        Skriv ut
+    </button>
 
-<div class="section">
-  <button id="finishBtn" onclick="endWork()">Ferdigmeld og send</button>
-</div>
+    <button class="disabled" disabled>
+        Sikker jobb analyse
+    </button>
 
-<div class="section">
-
-  <!-- FIX 2: iOS visible block -->
-  <div class="notesInfo">
-MERK: Siden brannalarmen er koblet sammen med innbruddsalarmen, sørg for å ha koden til
-alarmen nedskrevet før videre arbeid. Kontrolliste for brannalarm brukes for å loggføre test av røykmeldere.
-  </div>
-
-  <strong>Kontrolliste</strong>
-
-  <label><input type="checkbox" class="task" disabled>
-    Test røykmeldere med egnet testgass og kontroller at brannalarmen aktiveres. Test minst 1 forskjellig detektor hver gang. Loggfør hvilken detektor som ble testet i egen kontrolliste.
-  </label>
-
-  <label><input type="checkbox" class="task" disabled>
-    Sørg for at kontrollen blir dokumentert av vedlikeholdskoordinatoren i MNT-skjema. Hvis noe ikke fungerer så er det viktig at dette blir registrert og at man gjør tiltak for å rette feilen så snart som mulig.
-  </label>
-
-  <label><input type="checkbox" class="task" disabled>
-    Sjekk om brannalarmen er satt i drift igjen ved å taste alarmkoden.
-  </label>
-
-  <label><input type="checkbox" class="task" disabled>
-    Aktiver innbruddsalarmen, test funksjonen ved å utløse bevegelsessensor.
-  </label>
-
-  <label><input type="checkbox" class="task" disabled>
-    Sjekk om innbruddsalarmen er satt i drift igjen ved å taste alarmkoden.
-  </label>
-
-  <label><input type="checkbox" class="task" disabled>
-    Sjekk datoen for siste batteriskift. Batteriet må maks være 3 år gammelt. (Noter dato på batteriet når det er nytt)
-  </label>
+    <button class="disabled" disabled>
+        Veiledning
+    </button>
 
 </div>
-
-<div class="section">
-  <strong>Bilder</strong>
-  <input type="file" id="photos" accept="image/*" multiple disabled>
-  <div class="previewGrid" id="preview"></div>
-</div>
-
-<div class="section">
-  <strong>Notater</strong>
-  <textarea id="notes" disabled></textarea>
-</div>
-
-<div id="status" style="margin-top:10px;font-weight:bold;"></div>
 
 </div>
 
 <script>
 
-let startTime = null;
-let selectedPhotos = [];
-let timerInterval;
-
-function startTimer() {
-  const input = document.getElementById("timeInput");
-
-  timerInterval = setInterval(() => {
-    const diff = Date.now() - startTime;
-
-    const h = Math.floor(diff / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-
-    input.value =
-      String(h).padStart(2,"0") + ":" +
-      String(m).padStart(2,"0") + ":" +
-      String(s).padStart(2,"0");
-  }, 1000);
-}
-
-function startWork() {
-  startTime = Date.now();
-
-  document.querySelectorAll(".task").forEach(e => e.disabled = false);
-  document.getElementById("nameInput").disabled = false;
-  document.getElementById("notes").disabled = false;
-  document.getElementById("photos").disabled = false;
-
-  document.getElementById("startBtn").classList.add("pulse");
-  document.getElementById("startBtn").style.display = "none";
-  document.getElementById("finishBtn").style.display = "block";
-
-  startTimer();
-}
-
-document.getElementById("photos").addEventListener("change", e => {
-  selectedPhotos = selectedPhotos.concat(Array.from(e.target.files));
-  e.target.value = "";
-  renderPreview();
-});
-
-function renderPreview() {
-  const grid = document.getElementById("preview");
-  grid.innerHTML = "";
-
-  selectedPhotos.forEach((f,i) => {
-    const url = URL.createObjectURL(f);
-
-    grid.innerHTML += `
-      <div class="previewItem">
-        <img src="${url}">
-        <button class="removeBtn" onclick="removePhoto(${i})">×</button>
-      </div>
-    `;
-  });
-}
-
-function removePhoto(i) {
-  selectedPhotos.splice(i,1);
-  renderPreview();
-}
-
-async function compressFiles(files){
-  const out=[];
-  for(const f of files){
-    try{
-      out.push(await imageCompression(f,{
-        maxSizeMB:0.4,
-        maxWidthOrHeight:1600
-      }));
-    }catch{
-      out.push(f);
-    }
-  }
-  return out;
-}
-
-async function endWork() {
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  let y = 12;
-
-  doc.setFontSize(16);
-  doc.text("JOBBKORT 41 - BRANN OG INNBRUDDSALARM",10,y);
-  y += 10;
-
-  const name = document.getElementById("nameInput").value || "-";
-  doc.setFontSize(11);
-  doc.text("Navn: " + name,10,y);
-  y += 10;
-
-  document.querySelectorAll(".task").forEach(c => {
-
-    const text = c.parentElement.textContent.trim();
-
-    doc.setFontSize(10);
-
-    // FIX 3: iOS color safe
-    if(c.checked){
-      doc.setTextColor(0,150,0);
-      doc.text("UTFØRT",10,y);
-    } else {
-      doc.setTextColor(200,0,0);
-      doc.text("IKKE UTFØRT",10,y);
-    }
-
-    doc.setTextColor(0,0,0);
-
-    const lines = doc.splitTextToSize(text,110);
-    doc.text(lines,55,y);
-
-    y += (lines.length * 6) + 6;
-  });
-
-  y += 10;
-
-  doc.setFontSize(11);
-  doc.setFont(undefined,"bold");
-  doc.text("NOTATER",10,y);
-  y += 6;
-
-  doc.setFont(undefined,"normal");
-
-  const notes = document.getElementById("notes").value || "-";
-  const noteLines = doc.splitTextToSize(notes,180);
-  doc.text(noteLines,10,y);
-
-  y += (noteLines.length * 6) + 10;
-
-  doc.text("Vedlagte bilder: " + selectedPhotos.length,10,y);
-
-  const pdfBlob = doc.output("blob");
-
-  const formData = new FormData();
-  formData.append("file", pdfBlob, "jobbkort.pdf");
-
-  const compressed = await compressFiles(selectedPhotos);
-  for(const p of compressed){
-    formData.append("photos", p, p.name);
-  }
-
-  const status = document.getElementById("status");
-
-  try {
-    await fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev", {
-      method: "POST",
-      body: formData
-    });
-
-    status.innerText = "Rapport sendt! Du kan nå forlate siden.";
-    status.style.color = "green";
-
-    setTimeout(() => {
-      window.location.href = "ferdig.html";
-    }, 1200);
-
-  } catch (err) {
-
-    status.innerText = "Rapport sendt! Du kan nå forlate siden.";
-    status.style.color = "green";
-
-    setTimeout(() => {
-      window.location.href = "ferdig.html";
-    }, 1200);
-  }
+// 🔥 HER ER FIXEN
+function openWork() {
+    window.location.href = "jobkort41_work.html";
 }
 
 </script>
