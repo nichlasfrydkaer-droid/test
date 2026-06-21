@@ -63,14 +63,14 @@ button {
     margin-top: 10px;
 }
 
-/* START */
+/* START BUTTON */
 #startBtn {
     background: #28a745;
     color: white;
     animation: pulse 1.5s infinite;
 }
 
-/* FINISH */
+/* FINISH BUTTON */
 #finishBtn {
     background: red;
     color: white;
@@ -205,58 +205,4 @@ async function endWork() {
     doc.text("Kontrolliste:", 10, y);
     y += 10;
 
-    checks.forEach(c => {
-
-        let text = c.parentElement.innerText;
-
-        if (c.checked) {
-            doc.setTextColor(0,150,0);
-            doc.setFont(undefined,"bold");
-            doc.text("✔ OK", 10, y);
-        } else {
-            doc.setTextColor(220,0,0);
-            doc.setFont(undefined,"bold");
-            doc.text("✘ MANGLER", 10, y);
-        }
-
-        doc.setTextColor(0,0,0);
-        doc.setFont(undefined,"normal");
-
-        let lines = doc.splitTextToSize(text, 150);
-        doc.text(lines, 35, y);
-
-        y += lines.length * 6 + 3;
-    });
-
-    y += 5;
-
-    doc.setFontSize(12);
-    doc.text("Notater:", 10, y);
-    y += 8;
-
-    doc.setFontSize(10);
-    doc.text(doc.splitTextToSize(notes || "-", 180), 10, y);
-
-    const pdfBlob = doc.output("blob");
-
-    const formData = new FormData();
-    formData.append("file", pdfBlob, "jobbkort41.pdf");
-
-    const photos = document.getElementById("photos").files;
-
-    for (let i = 0; i < photos.length; i++) {
-        formData.append("photos", photos[i]);
-    }
-
-    fetch("https://YOUR-WORKER-URL.workers.dev", {
-        method: "POST",
-        body: formData
-    });
-
-    window.location.href = "ferdig.html";
-}
-
-</script>
-
-</body>
-</html>
+    checks.for
