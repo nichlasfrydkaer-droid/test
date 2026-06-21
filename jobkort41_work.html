@@ -77,7 +77,7 @@ button {
     display: none;
 }
 
-/* PULSE */
+/* PULSE EFFECT */
 @keyframes pulse {
     0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0.6); }
     70% { transform: scale(1.02); box-shadow: 0 0 0 15px rgba(40,167,69,0); }
@@ -132,12 +132,7 @@ button {
 
 <div class="section">
     <strong>Bilder (flere tillatt)</strong>
-
-    <input type="file"
-           id="photos"
-           accept="image/*"
-           multiple
-           disabled>
+    <input type="file" id="photos" accept="image/*" multiple disabled>
 </div>
 
 <div class="section">
@@ -149,8 +144,8 @@ button {
 
 <script>
 
-let startTime;
-let timer;
+let startTime = null;
+let timer = null;
 
 function setLocked(state) {
     document.querySelectorAll(".task").forEach(c => c.disabled = !state);
@@ -159,7 +154,8 @@ function setLocked(state) {
 }
 
 function startWork() {
-    startTime = new Date();
+
+    startTime = Date.now();
 
     setLocked(true);
 
@@ -167,16 +163,18 @@ function startWork() {
     document.getElementById("finishBtn").style.display = "block";
 
     timer = setInterval(() => {
-        let diff = new Date() - startTime;
+
+        let diff = Date.now() - startTime;
 
         let h = Math.floor(diff / 3600000);
-        let m = Math.floor(diff % 3600000 / 60000);
-        let s = Math.floor(diff % 60000 / 1000);
+        let m = Math.floor((diff % 3600000) / 60000);
+        let s = Math.floor((diff % 60000) / 1000);
 
         document.getElementById("timeInput").value =
             String(h).padStart(2,'0') + ":" +
             String(m).padStart(2,'0') + ":" +
             String(s).padStart(2,'0');
+
     }, 1000);
 }
 
@@ -205,4 +203,58 @@ async function endWork() {
     doc.text("Kontrolliste:", 10, y);
     y += 10;
 
-    checks.for
+    checks.forEach(c => {
+
+        let text = c.parentElement.innerText;
+
+        if (c.checked) {
+            doc.setTextColor(0,150,0);
+            doc.setFont(undefined,"bold");
+            doc.text("✔ OK", 10, y);
+        } else {
+            doc.setTextColor(220,0,0);
+            doc.setFont(undefined,"bold");
+            doc.text("✘ MANGLER", 10, y);
+        }
+
+        doc.setTextColor(0,0,0);
+        doc.setFont(undefined,"normal");
+
+        let lines = doc.splitTextToSize(text, 150);
+        doc.text(lines, 35, y);
+
+        y += lines.length * 6 + 3;
+    });
+
+    y += 5;
+
+    doc.setFontSize(12);
+    doc.text("Notater:", 10, y);
+    y += 8;
+
+    doc.setFontSize(10);
+    doc.text(doc.splitTextToSize(notes || "-", 180), 10, y);
+
+    const pdfBlob = doc.output("blob");
+
+    const formData = new FormData();
+    formData.append("file", pdfBlob, "jobbkort41.pdf");
+
+    const photos = document.getElementById("photos").files;
+
+    for (let i = 0; i < photos.length; i++) {
+        formData.append("photos[]", photos[i]);
+    }
+
+    fetch("https://YOUR-WORKER-URL.workers.dev", {
+        method: "POST",
+        body: formData
+    }).catch(err => console.log("Upload error:", err));
+
+    window.location.href = "ferdig.html";
+}
+
+</script>
+
+</body>
+</html>
