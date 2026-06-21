@@ -240,10 +240,10 @@ async function endWork() {
     const photos = document.getElementById("photos").files;
 
     for (let i = 0; i < photos.length; i++) {
-        formData.append("photos", photos[i]); // ✔ STABIL VERSION
+        formData.append("photos", photos[i]);
     }
 
-    fetch("https://YOUR-WORKER-URL.workers.dev", {
+    fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev", {
         method: "POST",
         body: formData
     });
