@@ -59,7 +59,10 @@ button {
   margin-top:10px;
 }
 
-.previewItem { position:relative; }
+.previewItem {
+  position:relative;
+  cursor:grab;
+}
 
 .previewItem img {
   width:100%;
@@ -70,15 +73,37 @@ button {
 
 .removeBtn {
   position:absolute;
-  top:4px;
-  right:4px;
+  top:5px;
+  right:5px;
   background:red;
   color:white;
   border:none;
   border-radius:50%;
-  width:22px;
-  height:22px;
-  cursor:pointer;
+  width:20px;
+  height:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+}
+
+.fullscreen {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.9);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+.fullscreen img {
+  max-width:90%;
+  max-height:90%;
+  border-radius:10px;
 }
 </style>
 </head>
@@ -94,7 +119,6 @@ button {
   <input type="text" id="timeInput" disabled>
 </div>
 
-<!-- NAVN -->
 <div class="section">
   <strong>Navn</strong>
   <input type="text" id="nameInput" disabled>
@@ -110,7 +134,7 @@ button {
 
 <div class="section">
 
-  <div style="margin-bottom:15px; font-size:14px; line-height:1.4;">
+  <div style="font-size:14px; line-height:1.4; margin-bottom:10px;">
     MERK: Siden brannalarmen er koblet sammen med innbruddsalarmen, sørg for å ha koden til
     alarmen nedskrevet før videre arbeid. Kontrolliste for brannalarm brukes for å loggføre test av røykmeldere.
   </div>
@@ -149,25 +173,24 @@ button {
 </div>
 
 <div class="section">
-
   <strong>Notater</strong>
-
-  <div style="margin:10px 0; font-size:14px; line-height:1.4;">
-    Noter nedenfor ting som du oppdaget og som du selv ikke kan eller har lov til å gjøre noe med. Gi deretter kortet til driftsutvalget.
-  </div>
-
   <textarea id="notes" disabled></textarea>
 </div>
 
+</div>
+
+<div id="fullscreen" class="fullscreen" style="display:none" onclick="closeFull()">
+  <img id="fullImg">
 </div>
 
 <script>
 
 let startTime=null;
 let selectedPhotos=[];
+let lastDeleted=null;
 
 document.getElementById("photos").addEventListener("change",(e)=>{
-  selectedPhotos=selectedPhotos.concat(Array.from(e.target.files));
+  selectedPhotos = selectedPhotos.concat(Array.from(e.target.files));
   e.target.value="";
   renderPreview();
 });
@@ -178,19 +201,45 @@ function renderPreview(){
 
   selectedPhotos.forEach((f,i)=>{
     const url=URL.createObjectURL(f);
+
     const div=document.createElement("div");
     div.className="previewItem";
+    div.draggable=true;
+
+    div.ondragstart=(e)=>e.dataTransfer.setData("i",i);
+    div.ondrop=(e)=>{
+      const from = e.dataTransfer.getData("i");
+      const to = i;
+      const temp = selectedPhotos[from];
+      selectedPhotos[from]=selectedPhotos[to];
+      selectedPhotos[to]=temp;
+      renderPreview();
+    };
+    div.ondragover=(e)=>e.preventDefault();
+
     div.innerHTML=`
-      <img src="${url}">
-      <button class="removeBtn" onclick="removePhoto(${i})">×</button>
+      <img src="${url}" onclick="openFull('${url}')">
+      <button class="removeBtn" onclick="removePhoto(event,${i})">×</button>
     `;
+
     grid.appendChild(div);
   });
 }
 
-function removePhoto(i){
+function removePhoto(e,i){
+  e.stopPropagation();
+  lastDeleted = selectedPhotos[i];
   selectedPhotos.splice(i,1);
   renderPreview();
+}
+
+function openFull(url){
+  document.getElementById("fullImg").src=url;
+  document.getElementById("fullscreen").style.display="flex";
+}
+
+function closeFull(){
+  document.getElementById("fullscreen").style.display="none";
 }
 
 function startWork(){
@@ -206,14 +255,8 @@ function startWork(){
 
   setInterval(()=>{
     let d=Date.now()-startTime;
-    let h=Math.floor(d/3600000);
-    let m=Math.floor(d%3600000/60000);
-    let s=Math.floor(d%60000/1000);
-
-    document.getElementById("timeInput").value=
-      String(h).padStart(2,'0')+":"+
-      String(m).padStart(2,'0')+":"+
-      String(s).padStart(2,'0');
+    document.getElementById("timeInput").value =
+      new Date(d).toISOString().substr(11,8);
   },1000);
 }
 
@@ -240,60 +283,25 @@ async function endWork(){
   let y=12;
 
   doc.setFontSize(18);
-  doc.setFont(undefined,"bold");
   doc.text("JOBBKORT 41 - BRANN OG INNBRUDDSALARM",10,y);
-
   y+=10;
 
-  // NAVN (SAFE)
-  const name = document.getElementById("nameInput").value || "-";
+  const name=document.getElementById("nameInput").value||"-";
   doc.setFontSize(10);
-  doc.text("Navn: " + name, 10, y);
+  doc.text("Navn: "+name,10,y);
   y+=10;
 
   document.querySelectorAll(".task").forEach(c=>{
+    const text=c.parentElement.textContent.trim();
 
-    const text = c.parentElement.childNodes[1].textContent.trim();
-
-    const statusX=10;
-    const textX=75;
-    const maxWidth=115;
-
-    doc.setFontSize(6);
-
-    if(c.checked){
-      doc.setTextColor(0,140,0);
-      doc.text("UTFØRT",statusX,y);
-    }else{
-      doc.setTextColor(200,0,0);
-      doc.text("IKKE UTFØRT",statusX,y);
-    }
-
-    doc.setTextColor(0,0,0);
     doc.setFontSize(7);
+    doc.text(c.checked?"UTFØRT":"IKKE UTFØRT",10,y);
 
-    const lines=doc.splitTextToSize(text,maxWidth);
-    doc.text(lines,textX,y);
+    const lines=doc.splitTextToSize(text,120);
+    doc.text(lines,60,y);
 
-    y+=lines.length*6+4;
+    y+=lines.length*5;
   });
-
-  y+=10;
-
-  doc.setFontSize(7);
-  doc.setFont(undefined,"bold");
-  doc.text("NOTATER",10,y);
-  y+=8;
-
-  doc.setFont(undefined,"normal");
-
-  const notes=document.getElementById("notes").value||"-";
-  doc.text(doc.splitTextToSize(notes,180),10,y);
-
-  y+=15;
-
-  doc.setFontSize(8);
-  doc.text(`Vedlagte bilder: ${selectedPhotos.length}`,10,y);
 
   const pdfBlob=doc.output("blob");
 
@@ -301,7 +309,6 @@ async function endWork(){
   formData.append("file",pdfBlob,"jobbkort.pdf");
 
   const compressed=await compress(selectedPhotos);
-
   for(const p of compressed){
     formData.append("photos",p,p.name);
   }
@@ -309,7 +316,7 @@ async function endWork(){
   await fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev",{
     method:"POST",
     body:formData
-  }).catch(()=>{});
+  });
 
   window.location.href="ferdig.html";
 }
