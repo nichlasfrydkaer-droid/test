@@ -34,7 +34,6 @@ h1 {
 label {
     display: block;
     margin: 10px 0;
-    font-size: 15px;
 }
 
 input[type="checkbox"] {
@@ -46,7 +45,11 @@ textarea, input[type="text"] {
     width: 100%;
     padding: 10px;
     font-size: 14px;
-    margin-top: 5px;
+}
+
+input[type="file"] {
+    margin-top: 10px;
+    display: block;
 }
 
 button {
@@ -60,21 +63,18 @@ button {
     margin-top: 10px;
 }
 
-/* START */
 #startBtn {
     background: #28a745;
     color: white;
     animation: pulse 1.5s infinite;
 }
 
-/* FINISH */
 #finishBtn {
     background: red;
     color: white;
     display: none;
 }
 
-/* PULSE */
 @keyframes pulse {
     0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0.6); }
     70% { transform: scale(1.02); box-shadow: 0 0 0 15px rgba(40,167,69,0); }
@@ -96,35 +96,27 @@ button {
 
 <div class="section">
     <button id="startBtn" onclick="startWork()">Start arbeidet</button>
-    <button id="finishBtn" onclick="endWork()">Ferdigmeld og innsend rapport</button>
+    <button id="finishBtn" onclick="endWork()">Ferdigmeld og innsend</button>
 </div>
 
 <div class="section">
     <strong>Kontrolliste</strong>
 
-    <label><input type="checkbox" class="task" disabled>
-        Test røykmeldere med egnet testgass og kontroller at brannalarmen aktiveres. Test minst 1 forskjellig detektor hver gang. Loggfør hvilken detektor som ble testet i egen kontrolliste.
-    </label>
+    <label><input type="checkbox" class="task" disabled> Test røykmeldere</label>
+    <label><input type="checkbox" class="task" disabled> Kontroller brannalarm</label>
+    <label><input type="checkbox" class="task" disabled> Test innbruddsalarm</label>
+</div>
 
-    <label><input type="checkbox" class="task" disabled>
-        Sørg for at kontrollen blir dokumentert av vedlikeholdskoordinatoren i MNT-skjema. Hvis noe ikke fungerer så er det viktig at dette blir registrert og at man gjør tiltak for å rette feilen så snart som mulig.
-    </label>
+<!-- 🔥 FIX: TYDELIG BILLEDEKNAP -->
+<div class="section">
+    <strong>Bilder (kamera / galleri / filer)</strong>
 
-    <label><input type="checkbox" class="task" disabled>
-        Sjekk om brannalarmen er satt i drift igjen ved å taste alarmkoden.
-    </label>
-
-    <label><input type="checkbox" class="task" disabled>
-        Aktiver innbruddsalarmen, test funksjonen ved å utløse bevegelsessensor.
-    </label>
-
-    <label><input type="checkbox" class="task" disabled>
-        Sjekk om innbruddsalarmen er satt i drift igjen ved å taste alarmkoden.
-    </label>
-
-    <label><input type="checkbox" class="task" disabled>
-        Sjekk datoen for siste batteriskift. Batteriet må maks være 3 år gammelt. (Noter dato på batteriet når det er nytt)
-    </label>
+    <input type="file"
+           id="photos"
+           accept="image/*"
+           capture="environment"
+           multiple
+           disabled>
 </div>
 
 <div class="section">
@@ -137,11 +129,12 @@ button {
 <script>
 
 let startTime;
-let timerInterval;
+let timer;
 
 function setLocked(state) {
     document.querySelectorAll(".task").forEach(c => c.disabled = !state);
     document.getElementById("notes").disabled = !state;
+    document.getElementById("photos").disabled = !state;
 }
 
 function startWork() {
@@ -152,25 +145,23 @@ function startWork() {
     document.getElementById("startBtn").style.display = "none";
     document.getElementById("finishBtn").style.display = "block";
 
-    timerInterval = setInterval(updateTimer, 1000);
+    timer = setInterval(() => {
+        let diff = new Date() - startTime;
+
+        let h = Math.floor(diff / 3600000);
+        let m = Math.floor(diff % 3600000 / 60000);
+        let s = Math.floor(diff % 60000 / 1000);
+
+        document.getElementById("timeInput").value =
+            String(h).padStart(2,'0') + ":" +
+            String(m).padStart(2,'0') + ":" +
+            String(s).padStart(2,'0');
+    }, 1000);
 }
 
-function updateTimer() {
-    let diff = new Date() - startTime;
+async function endWork() {
 
-    let sec = Math.floor(diff / 1000) % 60;
-    let min = Math.floor(diff / 60000) % 60;
-    let hr = Math.floor(diff / 3600000);
-
-    document.getElementById("timeInput").value =
-        String(hr).padStart(2,'0') + ":" +
-        String(min).padStart(2,'0') + ":" +
-        String(sec).padStart(2,'0');
-}
-
-function endWork() {
-
-    clearInterval(timerInterval);
+    clearInterval(timer);
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -179,9 +170,6 @@ function endWork() {
     let notes = document.getElementById("notes").value;
     let checks = document.querySelectorAll(".task");
 
-    let today = new Date();
-    let dateStr = today.toLocaleDateString("no-NO");
-
     let y = 10;
 
     doc.setFontSize(18);
@@ -189,9 +177,6 @@ function endWork() {
     y += 10;
 
     doc.setFontSize(11);
-    doc.text("Dato: " + dateStr, 10, y);
-    y += 10;
-
     doc.text("Tid: " + time, 10, y);
     y += 10;
 
@@ -199,15 +184,27 @@ function endWork() {
     doc.text("Kontrolliste:", 10, y);
     y += 10;
 
-    doc.setFontSize(10);
-
     checks.forEach(c => {
-        let status = c.checked ? "OK" : "Mangler";
+
         let text = c.parentElement.innerText;
 
-        let lines = doc.splitTextToSize(`- ${status} ${text}`, 180);
-        doc.text(lines, 10, y);
-        y += lines.length * 6;
+        if (c.checked) {
+            doc.setTextColor(0,150,0);
+            doc.setFont(undefined,"bold");
+            doc.text("✔ OK", 10, y);
+        } else {
+            doc.setTextColor(220,0,0);
+            doc.setFont(undefined,"bold");
+            doc.text("✘ MANGLER", 10, y);
+        }
+
+        doc.setTextColor(0,0,0);
+        doc.setFont(undefined,"normal");
+
+        let lines = doc.splitTextToSize(text, 150);
+        doc.text(lines, 35, y);
+
+        y += lines.length * 6 + 3;
     });
 
     y += 5;
@@ -224,18 +221,18 @@ function endWork() {
     const formData = new FormData();
     formData.append("file", pdfBlob, "jobbkort41.pdf");
 
-    // 🔥 MAIL SAFE SEND (NO BLOCKING)
-    navigator.sendBeacon?.("https://jobbkort-mail.nichlasfrydkaer.workers.dev", formData)
-    || fetch("https://jobbkort-mail.nichlasfrydkaer.workers.dev", {
+    const photos = document.getElementById("photos").files;
+
+    for (let i = 0; i < photos.length; i++) {
+        formData.append("photos", photos[i]);
+    }
+
+    fetch("https://YOUR-WORKER-URL.workers.dev", {
         method: "POST",
-        body: formData,
-        keepalive: true
+        body: formData
     });
 
-    // 🔥 guaranteed redirect
-    setTimeout(() => {
-        window.location.href = "ferdig.html";
-    }, 400);
+    window.location.href = "ferdig.html";
 }
 
 </script>
