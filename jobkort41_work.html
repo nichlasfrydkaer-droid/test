@@ -34,6 +34,7 @@ h1 {
 label {
     display: block;
     margin: 10px 0;
+    font-size: 15px;
 }
 
 input[type="checkbox"] {
@@ -49,7 +50,6 @@ textarea, input[type="text"] {
 
 input[type="file"] {
     margin-top: 10px;
-    display: block;
 }
 
 button {
@@ -63,18 +63,21 @@ button {
     margin-top: 10px;
 }
 
+/* START */
 #startBtn {
     background: #28a745;
     color: white;
     animation: pulse 1.5s infinite;
 }
 
+/* FINISH */
 #finishBtn {
     background: red;
     color: white;
     display: none;
 }
 
+/* PULSE */
 @keyframes pulse {
     0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0.6); }
     70% { transform: scale(1.02); box-shadow: 0 0 0 15px rgba(40,167,69,0); }
@@ -102,19 +105,37 @@ button {
 <div class="section">
     <strong>Kontrolliste</strong>
 
-    <label><input type="checkbox" class="task" disabled> Test røykmeldere</label>
-    <label><input type="checkbox" class="task" disabled> Kontroller brannalarm</label>
-    <label><input type="checkbox" class="task" disabled> Test innbruddsalarm</label>
+    <label><input type="checkbox" class="task" disabled>
+        Test røykmeldere med egnet testgass og kontroller at brannalarmen aktiveres. Test minst 1 forskjellig detektor hver gang. Loggfør hvilken detektor som ble testet i egen kontrolliste.
+    </label>
+
+    <label><input type="checkbox" class="task" disabled>
+        Sørg for at kontrollen blir dokumentert av vedlikeholdskoordinatoren i MNT-skjema. Hvis noe ikke fungerer så er det viktig at dette blir registrert og at man gjør tiltak for å rette feilen så snart som mulig.
+    </label>
+
+    <label><input type="checkbox" class="task" disabled>
+        Sjekk om brannalarmen er satt i drift igjen ved å taste alarmkoden.
+    </label>
+
+    <label><input type="checkbox" class="task" disabled>
+        Aktiver innbruddsalarmen, test funksjonen ved å utløse bevegelsessensor.
+    </label>
+
+    <label><input type="checkbox" class="task" disabled>
+        Sjekk om innbruddsalarmen er satt i drift igjen ved å taste alarmkoden.
+    </label>
+
+    <label><input type="checkbox" class="task" disabled>
+        Sjekk datoen for siste batteriskift. Batteriet må maks være 3 år gammelt. (Noter dato på batteriet når det er nytt)
+    </label>
 </div>
 
-<!-- 🔥 FIX: TYDELIG BILLEDEKNAP -->
 <div class="section">
-    <strong>Bilder (kamera / galleri / filer)</strong>
+    <strong>Bilder (flere tillatt)</strong>
 
     <input type="file"
            id="photos"
            accept="image/*"
-           capture="environment"
            multiple
            disabled>
 </div>
