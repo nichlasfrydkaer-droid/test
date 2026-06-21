@@ -6,52 +6,24 @@
 <title>Jobbkort 41 - Brann og innbruddsalarm</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<!-- 🔥 IMAGE COMPRESSION LIB -->
 <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    background: #f4f6f8;
-}
-
-.container {
-    max-width: 900px;
-    margin: auto;
-    background: white;
-    padding: 20px;
-}
-
+body { font-family: Arial; margin: 0; background: #f4f6f8; }
+.container { max-width: 900px; margin: auto; background: white; padding: 20px; }
 h1 { text-align: center; }
 
-.section {
-    margin-top: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #ddd;
-}
+.section { margin-top: 20px; padding-bottom: 15px; border-bottom: 1px solid #ddd; }
 
-label {
-    display: block;
-    margin: 10px 0;
-    font-size: 15px;
-}
+label { display: block; margin: 10px 0; }
 
-input[type="checkbox"] {
-    transform: scale(1.2);
-    margin-right: 8px;
-}
+input[type="checkbox"] { transform: scale(1.2); margin-right: 8px; }
 
 textarea, input[type="text"] {
-    width: 100%;
-    padding: 10px;
-    font-size: 14px;
+    width: 100%; padding: 10px;
 }
 
-input[type="file"] {
-    margin-top: 10px;
-}
+input[type="file"] { margin-top: 10px; }
 
 button {
     width: 100%;
@@ -59,40 +31,22 @@ button {
     font-size: 18px;
     font-weight: bold;
     border: none;
-    cursor: pointer;
     border-radius: 8px;
-    margin-top: 10px;
+    cursor: pointer;
 }
 
-#startBtn {
-    background: #28a745;
-    color: white;
-    animation: pulse 1.5s infinite;
-}
+#startBtn { background: #28a745; color: white; animation: pulse 1.5s infinite; }
+#finishBtn { background: red; color: white; }
 
-#finishBtn {
-    background: red;
-    color: white;
-}
+.loading { background: #999 !important; }
+.success { background: #28a745 !important; }
 
-.loading {
-    background: #999 !important;
-    cursor: not-allowed;
-}
-
-.success {
-    background: #28a745 !important;
-}
-
-#status {
-    margin-top: 10px;
-    font-weight: bold;
-}
+#status { margin-top: 10px; font-weight: bold; }
 
 @keyframes pulse {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0.6); }
-    70% { transform: scale(1.02); box-shadow: 0 0 0 15px rgba(40,167,69,0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40,167,69,0); }
+    0% { transform: scale(1); }
+    70% { transform: scale(1.03); }
+    100% { transform: scale(1); }
 }
 </style>
 </head>
@@ -129,7 +83,7 @@ button {
 </div>
 
 <div class="section">
-    <strong>Bilder (flere kan velges)</strong>
+    <strong>Bilder</strong>
     <input type="file" id="photos" accept="image/*" multiple disabled>
 </div>
 
@@ -171,25 +125,22 @@ function startWork() {
     }, 1000);
 }
 
-async function compressFiles(files) {
-    const result = [];
+async function compress(files) {
+    const out = [];
 
-    for (const file of files) {
+    for (const f of files) {
         try {
-            const compressed = await imageCompression(file, {
+            const c = await imageCompression(f, {
                 maxSizeMB: 0.4,
-                maxWidthOrHeight: 1600,
-                useWebWorker: true
+                maxWidthOrHeight: 1600
             });
-
-            result.push(compressed);
-
+            out.push(c);
         } catch (e) {
-            result.push(file);
+            out.push(f);
         }
     }
 
-    return result;
+    return out;
 }
 
 async function endWork() {
@@ -199,7 +150,7 @@ async function endWork() {
 
     btn.disabled = true;
     btn.classList.add("loading");
-    status.innerText = "Sender rapport...";
+    status.innerText = "Sender...";
 
     try {
 
@@ -212,16 +163,10 @@ async function endWork() {
 
         let y = 10;
 
-        doc.setFontSize(16);
         doc.text("Jobbkort 41 - Brann og innbruddsalarm", 10, y);
         y += 10;
 
-        doc.setFontSize(11);
         doc.text("Tid: " + time, 10, y);
-        y += 10;
-
-        doc.setFontSize(12);
-        doc.text("Kontrolliste:", 10, y);
         y += 10;
 
         checks.forEach(c => {
@@ -237,7 +182,6 @@ async function endWork() {
             }
 
             doc.setTextColor(0,0,0);
-
             let lines = doc.splitTextToSize(text, 150);
             doc.text(lines, 35, y);
 
@@ -253,9 +197,9 @@ async function endWork() {
         formData.append("file", pdfBlob, "jobbkort41.pdf");
 
         const photos = document.getElementById("photos").files;
-        const compressedPhotos = await compressFiles(photos);
+        const compressed = await compress(photos);
 
-        for (const p of compressedPhotos) {
+        for (const p of compressed) {
             formData.append("photos", p, p.name);
         }
 
@@ -265,7 +209,13 @@ async function endWork() {
         });
 
         const text = await res.text();
-        console.log(text);
+
+        console.log("STATUS:", res.status);
+        console.log("BODY:", text);
+
+        if (!res.ok) {
+            throw new Error(text);
+        }
 
         btn.classList.remove("loading");
         btn.classList.add("success");
@@ -278,7 +228,7 @@ async function endWork() {
 
         btn.disabled = false;
         btn.classList.remove("loading");
-        status.innerText = "Feil ved sending";
+        status.innerText = "Feil: " + err.message;
 
     }
 }
