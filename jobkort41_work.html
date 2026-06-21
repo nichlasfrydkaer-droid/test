@@ -20,6 +20,7 @@ body {
     margin: auto;
     background: white;
     padding: 20px;
+    padding-bottom: 80px;
 }
 
 h1 { text-align: center; }
@@ -34,6 +35,11 @@ label {
     display: block;
     margin: 10px 0;
     font-size: 15px;
+    line-height: 1.4;
+}
+
+input, textarea, button {
+    font-size: 16px;
 }
 
 input[type="checkbox"] {
@@ -44,17 +50,11 @@ input[type="checkbox"] {
 textarea, input[type="text"] {
     width: 100%;
     padding: 10px;
-    font-size: 14px;
-}
-
-input[type="file"] {
-    margin-top: 10px;
 }
 
 button {
     width: 100%;
     padding: 16px;
-    font-size: 18px;
     font-weight: bold;
     border: none;
     cursor: pointer;
@@ -75,12 +75,24 @@ button {
 }
 
 .loading {
-    background: #888 !important;
-    cursor: not-allowed;
+    background: #777 !important;
 }
 
 .success {
     background: #28a745 !important;
+}
+
+#status {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+#stepStatus {
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 8px;
+    background: #eee;
+    border-radius: 6px;
 }
 
 @keyframes pulse {
@@ -96,6 +108,8 @@ button {
 <div class="container">
 
 <h1>JOBBKORT 41 - Brann og innbruddsalarm</h1>
+
+<div id="stepStatus">1. Ikke startet</div>
 
 <div class="section">
     <strong>Tid brukt på jobb</strong>
@@ -114,16 +128,33 @@ button {
 <div class="section">
     <strong>Kontrolliste</strong>
 
-    <label><input type="checkbox" class="task" disabled> Test røykmeldere</label>
-    <label><input type="checkbox" class="task" disabled> Dokumentasjon MNT</label>
-    <label><input type="checkbox" class="task" disabled> Reset brannalarm</label>
-    <label><input type="checkbox" class="task" disabled> Test innbruddsalarm</label>
-    <label><input type="checkbox" class="task" disabled> Sjekk system</label>
-    <label><input type="checkbox" class="task" disabled> Batterisjekk</label>
+    <label><input type="checkbox" class="task" disabled>
+        Test røykmeldere med egnet testgass og kontroller at brannalarmen aktiveres korrekt.
+    </label>
+
+    <label><input type="checkbox" class="task" disabled>
+        Sørg for at all kontroll blir dokumentert i MNT-skjema av vedlikeholdskoordinator.
+    </label>
+
+    <label><input type="checkbox" class="task" disabled>
+        Kontroller at brannalarmen er korrekt resatt etter testing og tilbake i normal drift.
+    </label>
+
+    <label><input type="checkbox" class="task" disabled>
+        Test innbruddsalarmen ved å utløse bevegelsessensor og verifiser alarmrespons.
+    </label>
+
+    <label><input type="checkbox" class="task" disabled>
+        Bekreft at innbruddsalarmen er tilbake i normal drift etter test.
+    </label>
+
+    <label><input type="checkbox" class="task" disabled>
+        Kontroller batteristatus og sørg for at batteriet ikke er eldre enn 3 år.
+    </label>
 </div>
 
 <div class="section">
-    <strong>Bilder</strong>
+    <strong>Bilder (flere kan velges)</strong>
     <input type="file" id="photos" accept="image/*" multiple disabled>
 </div>
 
@@ -139,6 +170,17 @@ button {
 let startTime = null;
 let timer = null;
 
+function setStep(step) {
+    const el = document.getElementById("stepStatus");
+    const map = {
+        1: "1. Ikke startet",
+        2: "2. Arbeider",
+        3: "3. Sender rapport",
+        4: "4. Ferdig"
+    };
+    el.innerText = map[step];
+}
+
 function setLocked(state) {
     document.querySelectorAll(".task").forEach(c => c.disabled = !state);
     document.getElementById("notes").disabled = !state;
@@ -147,11 +189,12 @@ function setLocked(state) {
 
 function startWork() {
     startTime = Date.now();
-
     setLocked(true);
 
     document.getElementById("startBtn").style.display = "none";
     document.getElementById("finishBtn").style.display = "block";
+
+    setStep(2);
 
     timer = setInterval(() => {
         let diff = Date.now() - startTime;
@@ -167,27 +210,23 @@ function startWork() {
     }, 1000);
 }
 
-async function compressFiles(files) {
-    const result = [];
-
-    for (const file of files) {
+async function compress(files) {
+    const out = [];
+    for (const f of files) {
         try {
-            const compressed = await imageCompression(file, {
+            out.push(await imageCompression(f, {
                 maxSizeMB: 0.4,
-                maxWidthOrHeight: 1600,
-                useWebWorker: true
-            });
-            result.push(compressed);
+                maxWidthOrHeight: 1600
+            }));
         } catch {
-            result.push(file);
+            out.push(f);
         }
     }
-
-    return result;
+    return out;
 }
 
-function wrapText(doc, text, x, y, maxWidth) {
-    const lines = doc.splitTextToSize(text, maxWidth);
+function wrap(doc, text, x, y, w) {
+    const lines = doc.splitTextToSize(text, w);
     doc.text(lines, x, y);
     return lines.length * 6;
 }
@@ -195,7 +234,7 @@ function wrapText(doc, text, x, y, maxWidth) {
 async function endWork() {
 
     if (!startTime) {
-        alert("Du må starte arbeidet først");
+        alert("Start arbeidet først");
         return;
     }
 
@@ -204,6 +243,8 @@ async function endWork() {
 
     btn.disabled = true;
     btn.classList.add("loading");
+
+    setStep(3);
     status.innerText = "Sender rapport...";
 
     try {
@@ -243,13 +284,13 @@ async function endWork() {
 
             doc.setTextColor(0,0,0);
 
-            y += wrapText(doc, text, 35, y, 150);
+            y += wrap(doc, text, 35, y, 150);
         });
 
         y += 5;
         doc.text("Notater:", 10, y);
         y += 8;
-        y += wrapText(doc, notes || "-", 10, y, 180);
+        y += wrap(doc, notes || "-", 10, y, 180);
 
         const pdfBlob = doc.output("blob");
 
@@ -257,7 +298,7 @@ async function endWork() {
         formData.append("file", pdfBlob, "jobbkort41.pdf");
 
         const photos = document.getElementById("photos").files;
-        const compressed = await compressFiles(photos);
+        const compressed = await compress(photos);
 
         for (const p of compressed) {
             formData.append("photos", p, p.name);
@@ -268,20 +309,22 @@ async function endWork() {
             body: formData
         });
 
-        const text = await res.text();
-
-        if (!res.ok) throw new Error(text);
+        if (!res.ok) throw new Error(await res.text());
 
         btn.classList.remove("loading");
         btn.classList.add("success");
         btn.innerText = "✓ SENDT";
-        status.innerText = "Rapport sendt korrekt!";
+
+        setStep(4);
+        status.innerText = "Rapport sendt!";
 
     } catch (err) {
         console.error(err);
 
         btn.disabled = false;
         btn.classList.remove("loading");
+
+        setStep(2);
         status.innerText = "Feil ved sending: " + err.message;
     }
 }
